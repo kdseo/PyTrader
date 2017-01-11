@@ -15,7 +15,7 @@ import os
 
 # Account
 account = []
-with open("account.txt", 'r') as f:
+with open("C:\\Users\\seoga\\PycharmProjects\\PyTrader\\account.txt", 'r') as f:
     account = f.readlines()
 
 # 번개2 실행 및 로그인

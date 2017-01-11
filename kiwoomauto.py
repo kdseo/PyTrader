@@ -12,12 +12,10 @@ from pywinauto import timings
 import time
 import os
 
-# 파일위치
-path = "C:\\Windows\\System32\\account.txt"
 
 # Account
 account = []
-with open(path, 'r') as f:
+with open("account.txt", 'r') as f:
     account = f.readlines()
 
 # 번개2 실행 및 로그인

@@ -12,12 +12,8 @@ from pywinauto import timings
 import time
 import os
 
-# 경로얻기
-path = os.path.join(os.getcwd(), "account.txt")
-
-f = open("C:\\Users\\seoga\\log.txt", "w")
-f.write(path)
-f.close()
+# 파일위치
+path = "C:\\Windows\\System32\\account.txt"
 
 # Account
 account = []

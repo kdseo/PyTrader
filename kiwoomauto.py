@@ -15,6 +15,10 @@ import os
 # 경로얻기
 path = os.path.join(os.getcwd(), "account.txt")
 
+f = open("C:\\Users\\seoga\\log.txt", "w")
+f.write(path)
+f.close()
+
 # Account
 account = []
 with open(path, 'r') as f:

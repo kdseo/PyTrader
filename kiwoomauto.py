@@ -12,10 +12,12 @@ from pywinauto import timings
 import time
 import os
 
+# 경로얻기
+path = os.path.join(os.getcwd(), "account.txt")
 
 # Account
 account = []
-with open("C:\\Users\\seoga\\PycharmProjects\\pytrader\\account.txt", 'r') as f:
+with open(path, 'r') as f:
     account = f.readlines()
 
 # 번개2 실행 및 로그인

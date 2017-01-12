@@ -15,9 +15,9 @@ class Kiwoom(QAxWidget):
         self.rqLoop = None
         self.prevNext = 0
         self.OnEventConnect.connect(self.eventConnect)
-        self.OnReceiveTrData.connect(self.receiveTrData())
+        self.OnReceiveTrData.connect(self.receiveTrData)
 
-    def receiveTrData(self, screenNo, requestName, trCode, recordName, prevNext):
+    def receiveTrData(self, screenNo, requestName, trCode, recordName, prevNext, dontUse1, dontUse2, dontUse3, dontUse4):
         """ 데이터 수신시 발생하는 이벤트 """
 
         self.prevNext = prevNext
@@ -123,6 +123,7 @@ class Kiwoom(QAxWidget):
         """
 
         self.dynamicCall("CommRqData(QString, QString, int, QString)", requestName, trCode, prevNext, screenNo)
+        self.rqLoop = QEventLoop()
         self.rqLoop.exec_()
 
     def commGetData(self, trCode, realType, requestName, index, key):

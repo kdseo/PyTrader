@@ -1,6 +1,8 @@
 import sys
+import time
 from PyQt5.QAxContainer import QAxWidget
 from PyQt5.QtCore import QEventLoop
+from PyQt5.QtWidgets import QApplication
 
 
 class Kiwoom(QAxWidget):
@@ -16,8 +18,22 @@ class Kiwoom(QAxWidget):
         self.OnReceiveTrData.connect(self.receiveTrData())
 
     def receiveTrData(self, screenNo, requestName, trCode, recordName, prevNext):
+        """ 데이터 수신시 발생하는 이벤트 """
+
         self.prevNext = prevNext
-        raise NotImplementedError()
+
+        if requestName == "opt10081_req":
+            cnt = self.getRepeatCnt(trCode, requestName)
+
+            for i in range(cnt):
+                date = self.commGetData(trCode, "", requestName, i, "일자")
+                open = self.commGetData(trCode, "", requestName, i, "시가")
+                high = self.commGetData(trCode, "", requestName, i, "고가")
+                low = self.commGetData(trCode, "", requestName, i, "저가")
+                close = self.commGetData(trCode, "", requestName, i, "현재가")
+                print(date, ": ", open, ' ', high, ' ', low, ' ', close)
+
+        self.rqLoop.exit()
 
     def commConnect(self):
         """ 로그인 윈도우를 실행한다. """
@@ -69,7 +85,7 @@ class Kiwoom(QAxWidget):
 
     def getLoginInfo(self, tag):
         """
-        사용자의 tag 정보를 반환한다.
+        사용자의 tag에 해당하는 정보를 반환한다.
 
         tag에 올 수 있는 값은 아래와 같다.
         ACCOUNT_CNT: 전체 계좌의 개수를 반환한다.
@@ -109,30 +125,52 @@ class Kiwoom(QAxWidget):
         self.dynamicCall("CommRqData(QString, QString, int, QString)", requestName, trCode, prevNext, screenNo)
         self.rqLoop.exec_()
 
-    def commGetData(self, trCode, realType, recordName, index, key):
+    def commGetData(self, trCode, realType, requestName, index, key):
         """
         요청한 TR의 반환 값을 가져온다.
 
         :param trCode: string
         :param realType: string - TR 요청시 ""(빈문자)로 처리
-        :param recordName: string
+        :param requestName: string
         :param index: int
         :param key: string
         :return: string
         """
 
         data = self.dynamicCall("CommGetData(QString, QString, QString, int, QString)",
-                                trCode, realType, recordName, index, key)
+                                trCode, realType, requestName, index, key)
         return data.strip()
 
-    def getRepeatCnt(self, trCode, recordName):
+    def getRepeatCnt(self, trCode, requestName):
         """
-        요청한 TR의 반환 값중 recordName의 index 수를 반환한다.
+        requestName으로 요청한 TR의 반환 값의 index 수를 반환 합니다.
 
         :param trCode: string
-        :param recordName: string
+        :param requestName: string
         :return: int
         """
 
-        count = self.dynamicCall("GetRepeatCnt(QString, QString)", trCode, recordName)
+        count = self.dynamicCall("GetRepeatCnt(QString, QString)", trCode, requestName)
         return count
+
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+
+    kiwoom = Kiwoom()
+    kiwoom.commConnect()
+
+    kiwoom.setInputValue("종목코드", "039490")
+    kiwoom.setInputValue("기준일자", "20160624")
+    kiwoom.setInputValue("수정주가구분", 1)
+
+    kiwoom.commRqData("opt10081_req", "opt10081", 0, "0101")
+
+    while kiwoom.prevNext == '2':
+        time.sleep(0.2)
+
+        kiwoom.setInputValue("종목코드", "039490")
+        kiwoom.setInputValue("기준일자", "20160624")
+        kiwoom.setInputValue("수정주가구분", 1)
+
+        kiwoom.commRqData("opt10081_req", "opt10081", 2, "0101")

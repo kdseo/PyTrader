@@ -35,13 +35,6 @@ class Kiwoom(QAxWidget):
 
         self.rqLoop.exit()
 
-    def commConnect(self):
-        """ 로그인 윈도우를 실행한다. """
-
-        self.dynamicCall("CommConnect()")
-        self.loginLoop = QEventLoop()
-        self.loginLoop.exec_()
-
     def eventConnect(self, errCode):
         """
         통신 연결 상태 변경시 이벤트
@@ -55,6 +48,13 @@ class Kiwoom(QAxWidget):
             print("not connected")
 
         self.loginLoop.exit()
+
+    def commConnect(self):
+        """ 로그인 윈도우를 실행한다. """
+
+        self.dynamicCall("CommConnect()")
+        self.loginLoop = QEventLoop()
+        self.loginLoop.exec_()
 
     def getCodeListByMarket(self, market):
         """

@@ -154,6 +154,19 @@ class Kiwoom(QAxWidget):
         count = self.dynamicCall("GetRepeatCnt(QString, QString)", trCode, requestName)
         return count
 
+    def getConnectState(self):
+        """
+        현재 접속상태를 반환합니다.
+
+        반환되는 접속상태는 아래와 같습니다.
+        0: 미연결, 1: 연결
+
+        :return: int
+        """
+
+        state = self.dynamicCall("GetConnectState()")
+        return state
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

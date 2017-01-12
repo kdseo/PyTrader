@@ -1,16 +1,18 @@
 import sys
-from PyQt5.QtWidgets import QApplication
-from PyQt5.QtCore import QTimer
+from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtCore import QTimer, QTime
 from PyQt5 import uic
-import Kiwoom
+from Kiwoom import Kiwoom
 
 
-class MyWindow(object):
+ui = uic.loadUiType("pytrader.ui")[0]
+
+class MyWindow(QMainWindow, ui):
 
     def __init__(self):
         super().__init__()
-        self.ui = uic.loadUi("pytrader.ui")
-        self.ui.show()
+        self.setupUi(self)
+        self.show()
 
         self.kiwoom = Kiwoom()
         self.kiwoom.commConnect()
@@ -20,7 +22,15 @@ class MyWindow(object):
         self.timer.timeout.connect(self.timeout)
 
     def timeout(self):
-        self.ui.statusbar.showMessage(self.kiwoom.getConnectState())
+        currentTime = QTime.currentTime().toString("hh:mm:ss")
+        state = ""
+
+        if self.kiwoom.getConnectState() == 1:
+            state = "서버 연결중"
+        else:
+            state = "서버 미연결"
+
+        self.statusbar.showMessage("현재시간: " + currentTime + " | " + state)
 
 
 if __name__ == "__main__":

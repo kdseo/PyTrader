@@ -67,8 +67,8 @@ class Kiwoom(QAxWidget):
         :return: List
         """
 
-        func = 'GetCodeListByMarket("%s")' % market
-        codeList = self.dynamicCall(func)
+        cmd = 'GetCodeListByMarket("%s")' % market
+        codeList = self.dynamicCall(cmd)
         return codeList.split(';')
 
     def getMasterCodeName(self, code):
@@ -79,8 +79,8 @@ class Kiwoom(QAxWidget):
         :return: string
         """
 
-        func = 'GetMasterCodeName("%s")' % code
-        name = self.dynamicCall(func)
+        cmd = 'GetMasterCodeName("%s")' % code
+        name = self.dynamicCall(cmd)
         return name
 
     def getLoginInfo(self, tag):
@@ -97,8 +97,8 @@ class Kiwoom(QAxWidget):
         :return: string
         """
 
-        func = 'GetLoginInfo("%s")' % tag
-        info = self.dynamicCall(func)
+        cmd = 'GetLoginInfo("%s")' % tag
+        info = self.dynamicCall(cmd)
         return info
 
     def setInputValue(self, key, value):

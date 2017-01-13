@@ -1,3 +1,13 @@
+"""
+Kiwoom 클래스는 OCX를 통해 API 함수를 호출할 수 있도록 구현되어 있습니다.
+OCX 사용을 위해 QAxWidget 클래스를 상속받아서 구현하였으며,
+주식(현물) 거래에 필요한 메서드들만 구현하였습니다.
+
+author: 서경동
+last edit: 2017. 01. 14
+"""
+
+
 import sys
 import time
 from PyQt5.QAxContainer import QAxWidget
@@ -16,6 +26,17 @@ class Kiwoom(QAxWidget):
         self.prevNext = 0
         self.OnEventConnect.connect(self.eventConnect)
         self.OnReceiveTrData.connect(self.receiveTrData)
+        self.OnReceiveChejanData.connect(self.receiveChejanData)
+
+    # 이벤트 정의
+    def receiveChejanData(self, gubun, itemCnt, fidList):
+        """ 주문 체결시 발생하는 이벤트 """
+
+        print("gubun: ", gubun)
+        print("주문번호: ", self.getChejanData(9203))
+        print("종목명: ", self.getChejanData(302))
+        print("주문수량: ", self.getChejanData(900))
+        print("주문가격: ", self.getChejanData(901))
 
     def receiveTrData(self, screenNo, requestName, trCode, recordName, prevNext, dontUse1, dontUse2, dontUse3, dontUse4):
         """ 데이터 수신시 발생하는 이벤트 """
@@ -49,6 +70,7 @@ class Kiwoom(QAxWidget):
 
         self.loginLoop.exit()
 
+    # 메서드 정의
     def commConnect(self):
         """ 로그인 윈도우를 실행한다. """
 
@@ -166,6 +188,43 @@ class Kiwoom(QAxWidget):
 
         state = self.dynamicCall("GetConnectState()")
         return state
+
+    def sendOrder(self, requestName, screenNo, accountNo, orderType, code, qty, price, hogaGb, originOrderNo):
+        """
+        주식 주문을 키움서버로 전송한다.
+
+        :param requestName: string - 요청을 구분하기 위해서 개발자가 붙인 요청명
+        :param screenNo: string - 화면번호(4자리)
+        :param accountNo: string - 계좌번호(10자리)
+        :param orderType: int - 주문유형(1: 신규매수, 2: 신규매도, 3: 매수취소, 4: 매도취소, 5: 매수정정, 6: 매도정정)
+        :param code: string - 종목코드
+        :param qty: int - 주문수량
+        :param price: int - 주문단가
+        :param hogaGb: string - 거래구분(00: 지정가, 03: 시장가, 05: 조건부지정가, 06: 최유리지정가, 그외에는 api 문서참조)
+        :param originOrderNo: string - 원 주문번호
+        :return: int - api 문서의 에러코드표 참조
+        """
+
+        errCode = self.dynamicCall("SendOrder(QString, QString, QString, int, QString, int, int, QString, QString)",
+                                   [requestName, screenNo, accountNo, orderType, code, qty, price, hogaGb, originOrderNo])
+        return errCode
+
+    def getChejanData(self, fid):
+        """
+        체결잔고 데이터를 반환한다.
+
+        주문 체결관련 FID
+        9202: 주문번호, 302: 종목명, 900: 주문수량, 901: 주문가격, 902: 미체결수량, 904: 원주문번호,
+        905: 주문구분, 908: 주문/체결시간, 909: 체결번호, 910: 체결가, 911: 체결량, 10: 현재가, 체결가, 실시간 종가
+        그 외의 FID는 api 문서 참조
+
+        :param fid: int
+        :return: string
+        """
+
+        cmd = 'GetChejanData("%s")' % fid
+        data = self.dynamicCall(cmd)
+        return data
 
 
 if __name__ == "__main__":

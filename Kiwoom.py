@@ -54,7 +54,12 @@ class Kiwoom(QAxWidget):
                 close = self.commGetData(trCode, "", requestName, i, "현재가")
                 print(date, ": ", open, ' ', high, ' ', low, ' ', close)
 
-        self.rqLoop.exit()
+        try:
+            # commRqData()에서 발생시킨 루프를 종료시킨다.
+            # 필요한지 고민중.
+            self.rqLoop.exit()
+        except AttributeError:
+            pass
 
     def eventConnect(self, errCode):
         """

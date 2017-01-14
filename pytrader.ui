@@ -43,7 +43,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="comboBox"/>
+          <widget class="QComboBox" name="accountComboBox"/>
          </item>
         </layout>
        </item>
@@ -57,7 +57,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="comboBox_2">
+          <widget class="QComboBox" name="orderTypeComboBox">
            <item>
             <property name="text">
              <string>신규매수</string>
@@ -94,10 +94,10 @@
          <item>
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
-            <widget class="QLineEdit" name="lineEdit"/>
+            <widget class="QLineEdit" name="codeLineEdit"/>
            </item>
            <item>
-            <widget class="QLineEdit" name="lineEdit_2">
+            <widget class="QLineEdit" name="codeNameLineEdit">
              <property name="styleSheet">
               <string notr="true">background-color: rgb(170, 255, 255)</string>
              </property>
@@ -117,7 +117,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="comboBox_3">
+          <widget class="QComboBox" name="hogaTypeComboBox">
            <item>
             <property name="text">
              <string>지정가</string>
@@ -142,7 +142,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="spinBox">
+          <widget class="QSpinBox" name="qtySpinBox">
            <property name="maximum">
             <number>1000000</number>
            </property>
@@ -160,7 +160,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="spinBox_2">
+          <widget class="QSpinBox" name="priceSpinBox">
            <property name="maximum">
             <number>1000000</number>
            </property>
@@ -172,7 +172,7 @@
         </layout>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton">
+        <widget class="QPushButton" name="orderBtn">
          <property name="text">
           <string>현금주문</string>
          </property>

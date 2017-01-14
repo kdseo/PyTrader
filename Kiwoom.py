@@ -38,8 +38,20 @@ class Kiwoom(QAxWidget):
         print("주문수량: ", self.getChejanData(900))
         print("주문가격: ", self.getChejanData(901))
 
-    def receiveTrData(self, screenNo, requestName, trCode, recordName, inquiry, dontUse1, dontUse2, dontUse3, dontUse4):
-        """ TR 수신시 이벤트 """
+    def receiveTrData(self, screenNo, requestName, trCode, recordName, inquiry,
+                      deprecated1, deprecated2, deprecated3, deprecated4):
+        """
+        TR 수신시 이벤트
+
+        requestName과 trCode는 commRqData()메소드의 매개변수와 매핑되는 값 이다.
+
+        :param screenNo: string - 화면번호(4자리)
+        :param requestName: string - TR 요청명(commRqData() 메소드 호출시 사용된 requestName)
+        :param trCode: string
+        :param recordName: string
+        :param inquiry: string - 조회('0': 남은 데이터 없음, '2': 남은 데이터 있음)
+        :return:
+        """
 
         self.inquiry = inquiry
 
@@ -142,7 +154,7 @@ class Kiwoom(QAxWidget):
         """
         키움서버에 TR 요청을 한다.
 
-        :param requestName: string - TR을 구분하기 위해 개발자가 정의
+        :param requestName: string - TR 요청명(사용자 정의)
         :param trCode: string
         :param inquiry: int - 0(조회), 2(연속)
         :param screenNo: string - 화면번호(4자리)
@@ -159,7 +171,7 @@ class Kiwoom(QAxWidget):
 
         :param trCode: string
         :param realType: string - TR 요청시 ""(빈문자)로 처리
-        :param requestName: string
+        :param requestName: string - TR 요청명(commRqData() 메소드 호출시 사용된 requestName)
         :param index: int
         :param key: string
         :return: string
@@ -174,7 +186,7 @@ class Kiwoom(QAxWidget):
         requestName으로 요청한 TR의 반환 값의 index 수를 반환 합니다.
 
         :param trCode: string
-        :param requestName: string
+        :param requestName: string - TR 요청명(commRqData() 메소드 호출시 사용된 requestName)
         :return: int
         """
 
@@ -198,7 +210,7 @@ class Kiwoom(QAxWidget):
         """
         주식 주문을 키움서버로 전송한다.
 
-        :param requestName: string - 요청을 구분하기 위해서 개발자가 붙인 요청명
+        :param requestName: string - 주문 요청명(사용자 정의)
         :param screenNo: string - 화면번호(4자리)
         :param accountNo: string - 계좌번호(10자리)
         :param orderType: int - 주문유형(1: 신규매수, 2: 신규매도, 3: 매수취소, 4: 매도취소, 5: 매수정정, 6: 매도정정)

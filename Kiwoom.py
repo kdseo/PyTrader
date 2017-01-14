@@ -23,14 +23,14 @@ class Kiwoom(QAxWidget):
         self.setControl("KHOPENAPI.KHOpenAPICtrl.1")
         self.loginLoop = None
         self.rqLoop = None
-        self.prevNext = 0
+        self.inquiry = 0
         self.OnEventConnect.connect(self.eventConnect)
         self.OnReceiveTrData.connect(self.receiveTrData)
         self.OnReceiveChejanData.connect(self.receiveChejanData)
 
     # 이벤트 정의
     def receiveChejanData(self, gubun, itemCnt, fidList):
-        """ 주문 체결시 발생하는 이벤트 """
+        """ 주문 접수/확인 수신시 이벤트 """
 
         print("gubun: ", gubun)
         print("주문번호: ", self.getChejanData(9203))
@@ -38,10 +38,10 @@ class Kiwoom(QAxWidget):
         print("주문수량: ", self.getChejanData(900))
         print("주문가격: ", self.getChejanData(901))
 
-    def receiveTrData(self, screenNo, requestName, trCode, recordName, prevNext, dontUse1, dontUse2, dontUse3, dontUse4):
-        """ 데이터 수신시 발생하는 이벤트 """
+    def receiveTrData(self, screenNo, requestName, trCode, recordName, inquiry, dontUse1, dontUse2, dontUse3, dontUse4):
+        """ TR 수신시 이벤트 """
 
-        self.prevNext = prevNext
+        self.inquiry = inquiry
 
         if requestName == "opt10081_req":
             cnt = self.getRepeatCnt(trCode, requestName)
@@ -138,18 +138,18 @@ class Kiwoom(QAxWidget):
 
         self.dynamicCall("SetInputValue(QString, QString)", key, value)
 
-    def commRqData(self, requestName, trCode, prevNext, screenNo):
+    def commRqData(self, requestName, trCode, inquiry, screenNo):
         """
         키움서버에 TR 요청을 한다.
 
         :param requestName: string - TR을 구분하기 위해 개발자가 정의
         :param trCode: string
-        :param prevNext: int - 0(조회), 2(연속)
+        :param inquiry: int - 0(조회), 2(연속)
         :param screenNo: string - 화면번호(4자리)
         :return: int
         """
 
-        self.dynamicCall("CommRqData(QString, QString, int, QString)", requestName, trCode, prevNext, screenNo)
+        self.dynamicCall("CommRqData(QString, QString, int, QString)", requestName, trCode, inquiry, screenNo)
         self.rqLoop = QEventLoop()
         self.rqLoop.exec_()
 
@@ -244,7 +244,7 @@ if __name__ == "__main__":
 
     kiwoom.commRqData("opt10081_req", "opt10081", 0, "0101")
 
-    while kiwoom.prevNext == '2':
+    while kiwoom.inquiry == '2':
         time.sleep(0.2)
 
         kiwoom.setInputValue("종목코드", "039490")

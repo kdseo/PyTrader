@@ -189,7 +189,7 @@ class Kiwoom(QAxWidget):
         state = self.dynamicCall("GetConnectState()")
         return state
 
-    def sendOrder(self, requestName, screenNo, accountNo, orderType, code, qty, price, hogaGb, originOrderNo):
+    def sendOrder(self, requestName, screenNo, accountNo, orderType, code, qty, price, hogaType, originOrderNo):
         """
         주식 주문을 키움서버로 전송한다.
 
@@ -200,13 +200,13 @@ class Kiwoom(QAxWidget):
         :param code: string - 종목코드
         :param qty: int - 주문수량
         :param price: int - 주문단가
-        :param hogaGb: string - 거래구분(00: 지정가, 03: 시장가, 05: 조건부지정가, 06: 최유리지정가, 그외에는 api 문서참조)
+        :param hogaType: string - 거래구분(00: 지정가, 03: 시장가, 05: 조건부지정가, 06: 최유리지정가, 그외에는 api 문서참조)
         :param originOrderNo: string - 원 주문번호
         :return: int - api 문서의 에러코드표 참조
         """
 
         errCode = self.dynamicCall("SendOrder(QString, QString, QString, int, QString, int, int, QString, QString)",
-                                   [requestName, screenNo, accountNo, orderType, code, qty, price, hogaGb, originOrderNo])
+                                   [requestName, screenNo, accountNo, orderType, code, qty, price, hogaType, originOrderNo])
         return errCode
 
     def getChejanData(self, fid):

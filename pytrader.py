@@ -16,6 +16,7 @@ class MyWindow(QMainWindow, ui):
 
         self.kiwoom = Kiwoom()
         self.kiwoom.commConnect()
+        self.codeList = self.kiwoom.getCodeListByMarket("0")
 
         self.timer = QTimer(self)
         self.timer.start(1000)
@@ -42,8 +43,10 @@ class MyWindow(QMainWindow, ui):
         """ 종목코드에 해당하는 한글명을 codeNameLineEdit에 설정한다. """
 
         code = self.codeLineEdit.text()
-        codeName = self.kiwoom.getMasterCodeName(code)
-        self.codeNameLineEdit.setText(codeName)
+
+        if code in self.codeList:
+            codeName = self.kiwoom.getMasterCodeName(code)
+            self.codeNameLineEdit.setText(codeName)
 
     def setAccountComboBox(self):
         """ accountComboBox에 계좌번호를 설정한다. """

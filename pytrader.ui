@@ -6,31 +6,202 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>1706</width>
+    <height>987</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>PyTrader v0.2</string>
+   <string>PyTrader v0.3</string>
   </property>
   <property name="windowIcon">
    <iconset>
     <normaloff>pytrader.png</normaloff>pytrader.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
+   <widget class="QGroupBox" name="groupBox_2">
+    <property name="geometry">
+     <rect>
+      <x>394</x>
+      <y>18</y>
+      <width>1289</width>
+      <height>876</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>1289</width>
+      <height>876</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>1289</width>
+      <height>876</height>
+     </size>
+    </property>
+    <property name="title">
+     <string>잔고 및 보유종목 현황</string>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_3">
+     <item>
+      <widget class="QTableWidget" name="tableWidget">
+       <property name="minimumSize">
+        <size>
+         <width>1251</width>
+         <height>111</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>1251</width>
+         <height>111</height>
+        </size>
+       </property>
+       <property name="rowCount">
+        <number>1</number>
+       </property>
+       <row/>
+       <column>
+        <property name="text">
+         <string>예수금 (d+2)</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>총매입</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>총평가</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>총손익</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>총수익률 (%)</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>추정자산</string>
+        </property>
+       </column>
+      </widget>
+     </item>
+     <item>
+      <widget class="QTableWidget" name="tableWidget_2">
+       <property name="minimumSize">
+        <size>
+         <width>1251</width>
+         <height>631</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>1251</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <column>
+        <property name="text">
+         <string>종목명</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>보유량</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>매입가</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>현재가</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>평가손익</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>수익률 (%)</string>
+        </property>
+       </column>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="0,0">
+       <property name="leftMargin">
+        <number>920</number>
+       </property>
+       <item>
+        <widget class="QCheckBox" name="checkBox">
+         <property name="maximumSize">
+          <size>
+           <width>170</width>
+           <height>28</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>실시간 조회</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButton">
+         <property name="maximumSize">
+          <size>
+           <width>150</width>
+           <height>46</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>조회</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </widget>
    <widget class="QGroupBox" name="groupBox">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>22</x>
       <y>20</y>
       <width>356</width>
       <height>426</height>
      </rect>
     </property>
+    <property name="minimumSize">
+     <size>
+      <width>356</width>
+      <height>426</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>356</width>
+      <height>426</height>
+     </size>
+    </property>
     <property name="title">
      <string>수동주문</string>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_7">
+    <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0">
+     <property name="topMargin">
+      <number>18</number>
+     </property>
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
@@ -206,7 +377,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>1706</width>
      <height>38</height>
     </rect>
    </property>

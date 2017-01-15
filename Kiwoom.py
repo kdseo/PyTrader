@@ -122,7 +122,7 @@ class Kiwoom(QAxWidget):
 
         for m in market:
             tmpList = self.getCodeListByMarket(m)
-            codeList.append(tmpList)
+            codeList += tmpList
 
         return codeList
 

@@ -16,7 +16,7 @@ class MyWindow(QMainWindow, ui):
 
         self.kiwoom = Kiwoom()
         self.kiwoom.commConnect()
-        self.codeList = self.kiwoom.getCodeListByMarket("0")
+        self.codeList = self.kiwoom.getCodeList("0")
 
         self.timer = QTimer(self)
         self.timer.start(1000)

@@ -40,6 +40,9 @@
            <property name="text">
             <string>계좌</string>
            </property>
+           <property name="buddy">
+            <cstring>accountComboBox</cstring>
+           </property>
           </widget>
          </item>
          <item>
@@ -53,6 +56,9 @@
           <widget class="QLabel" name="label_2">
            <property name="text">
             <string>주문</string>
+           </property>
+           <property name="buddy">
+            <cstring>orderTypeComboBox</cstring>
            </property>
           </widget>
          </item>
@@ -89,6 +95,9 @@
            <property name="text">
             <string>종목</string>
            </property>
+           <property name="buddy">
+            <cstring>codeLineEdit</cstring>
+           </property>
           </widget>
          </item>
          <item>
@@ -113,6 +122,9 @@
           <widget class="QLabel" name="label_4">
            <property name="text">
             <string>종류</string>
+           </property>
+           <property name="buddy">
+            <cstring>hogaTypeComboBox</cstring>
            </property>
           </widget>
          </item>
@@ -139,6 +151,9 @@
            <property name="text">
             <string>수량</string>
            </property>
+           <property name="buddy">
+            <cstring>qtySpinBox</cstring>
+           </property>
           </widget>
          </item>
          <item>
@@ -156,6 +171,9 @@
           <widget class="QLabel" name="label_6">
            <property name="text">
             <string>가격</string>
+           </property>
+           <property name="buddy">
+            <cstring>priceSpinBox</cstring>
            </property>
           </widget>
          </item>
@@ -195,6 +213,16 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
+ <tabstops>
+  <tabstop>accountComboBox</tabstop>
+  <tabstop>orderTypeComboBox</tabstop>
+  <tabstop>codeLineEdit</tabstop>
+  <tabstop>hogaTypeComboBox</tabstop>
+  <tabstop>qtySpinBox</tabstop>
+  <tabstop>priceSpinBox</tabstop>
+  <tabstop>orderBtn</tabstop>
+  <tabstop>codeNameLineEdit</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

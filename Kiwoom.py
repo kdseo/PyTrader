@@ -112,10 +112,12 @@ class Kiwoom(QAxWidget):
 
     def getCodeList(self, *market):
         """
+        여러 시장의 종목코드를 List 형태로 반환하는 헬퍼 메서드.
 
-        :param market:
-        :return:
+        :param market: Tuple - 여러 개의 문자열을 매개변수로 받아 Tuple로 처리한다.
+        :return: List
         """
+
         codeList = []
 
         for m in market:

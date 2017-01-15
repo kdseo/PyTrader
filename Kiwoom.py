@@ -110,6 +110,20 @@ class Kiwoom(QAxWidget):
         codeList = self.dynamicCall(cmd)
         return codeList.split(';')
 
+    def getCodeList(self, *market):
+        """
+
+        :param market:
+        :return:
+        """
+        codeList = []
+
+        for m in market:
+            tmpList = self.getCodeListByMarket(m)
+            codeList.append(tmpList)
+
+        return codeList
+
     def getMasterCodeName(self, code):
         """
         종목코드의 한글명을 반환한다.

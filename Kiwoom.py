@@ -21,9 +21,13 @@ class Kiwoom(QAxWidget):
         super().__init__()
 
         self.setControl("KHOPENAPI.KHOpenAPICtrl.1")
+
+        # instance var
         self.loginLoop = None
         self.rqLoop = None
         self.inquiry = 0
+
+        # signal & slot
         self.OnEventConnect.connect(self.eventConnect)
         self.OnReceiveTrData.connect(self.receiveTrData)
         self.OnReceiveChejanData.connect(self.receiveChejanData)
@@ -77,6 +81,9 @@ class Kiwoom(QAxWidget):
         """
         통신 연결 상태 변경시 이벤트
 
+        errCode가 0이면 로그인 성공
+        그 외에는 에러코드표 참조
+
         :param errCode: int
         """
 
@@ -100,7 +107,7 @@ class Kiwoom(QAxWidget):
         시장 구분에 따른 종목코드의 목록을 List로 반환한다.
 
         market에 올 수 있는 값은 아래와 같다.
-        0: 장내, 3: ELW, 4: 뮤추얼펀드, 5: 신주인수권, 6: 리츠, 8: ETF, 9: 하이일드펀드, 10: 코스닥, 30: 제3시장
+        '0': 장내, '3': ELW, '4': 뮤추얼펀드, '5': 신주인수권, '6': 리츠, '8': ETF, '9': 하이일드펀드, '10': 코스닥, '30': 제3시장
 
         :param market: string
         :return: List
@@ -124,9 +131,6 @@ class Kiwoom(QAxWidget):
         codeList = []
 
         for m in market:
-            if not isinstance(m, str):
-                raise ParameterTypeError()
-
             tmpList = self.getCodeListByMarket(m)
             codeList += tmpList
 
@@ -136,8 +140,8 @@ class Kiwoom(QAxWidget):
         """
         종목코드의 한글명을 반환한다.
 
-        :param code: string
-        :return: string
+        :param code: string - 종목코드
+        :return: string - 종목코드의 한글명
         """
 
         if not isinstance(code, str):
@@ -192,6 +196,13 @@ class Kiwoom(QAxWidget):
         :return: int
         """
 
+        if not (isinstance(requestName, str)
+                and isinstance(trCode, str)
+                and isinstance(inquiry, int)
+                and isinstance(screenNo, str)):
+
+            raise ParameterTypeError()
+
         self.dynamicCall("CommRqData(QString, QString, int, QString)", requestName, trCode, inquiry, screenNo)
         self.rqLoop = QEventLoop()
         self.rqLoop.exec_()
@@ -208,6 +219,14 @@ class Kiwoom(QAxWidget):
         :return: string
         """
 
+        if not (isinstance(trCode, str)
+                and isinstance(realType, str)
+                and isinstance(requestName, str)
+                and isinstance(index, int)
+                and isinstance(key, str)):
+
+            raise ParameterTypeError()
+
         data = self.dynamicCall("CommGetData(QString, QString, QString, int, QString)",
                                 trCode, realType, requestName, index, key)
         return data.strip()
@@ -220,6 +239,11 @@ class Kiwoom(QAxWidget):
         :param requestName: string - TR 요청명(commRqData() 메소드 호출시 사용된 requestName)
         :return: int
         """
+
+        if not (isinstance(trCode, str)
+                and isinstance(requestName, str)):
+
+            raise ParameterTypeError()
 
         count = self.dynamicCall("GetRepeatCnt(QString, QString)", trCode, requestName)
         return count
@@ -282,6 +306,9 @@ class Kiwoom(QAxWidget):
         :param fid: int
         :return: string
         """
+
+        if not isinstance(fid, str):
+            raise ParameterTypeError()
 
         cmd = 'GetChejanData("%s")' % fid
         data = self.dynamicCall(cmd)

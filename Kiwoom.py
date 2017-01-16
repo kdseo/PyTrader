@@ -106,6 +106,9 @@ class Kiwoom(QAxWidget):
         :return: List
         """
 
+        if not isinstance(market, str):
+            raise ParameterTypeError()
+
         cmd = 'GetCodeListByMarket("%s")' % market
         codeList = self.dynamicCall(cmd)
         return codeList.split(';')
@@ -121,6 +124,9 @@ class Kiwoom(QAxWidget):
         codeList = []
 
         for m in market:
+            if not isinstance(m, str):
+                raise ParameterTypeError()
+
             tmpList = self.getCodeListByMarket(m)
             codeList += tmpList
 
@@ -133,6 +139,9 @@ class Kiwoom(QAxWidget):
         :param code: string
         :return: string
         """
+
+        if not isinstance(code, str):
+            raise ParameterTypeError()
 
         cmd = 'GetMasterCodeName("%s")' % code
         name = self.dynamicCall(cmd)
@@ -152,6 +161,9 @@ class Kiwoom(QAxWidget):
         :return: string
         """
 
+        if not isinstance(tag, str):
+            raise ParameterTypeError()
+
         cmd = 'GetLoginInfo("%s")' % tag
         info = self.dynamicCall(cmd)
         return info
@@ -163,6 +175,9 @@ class Kiwoom(QAxWidget):
         :param key: string
         :param value: string
         """
+
+        if not (isinstance(key, str) and isinstance(value, str)):
+            raise ParameterTypeError()
 
         self.dynamicCall("SetInputValue(QString, QString)", key, value)
 
@@ -238,19 +253,21 @@ class Kiwoom(QAxWidget):
         :return: int - api 문서의 에러코드표 참조
         """
 
-        errCode = None
-        if isinstance(requestName, str) \
-                and isinstance(screenNo, str) \
-                and isinstance(accountNo, str) \
-                and isinstance(orderType, int) \
-                and isinstance(code, str) \
-                and isinstance(qty, int) \
-                and isinstance(price, int) \
-                and isinstance(hogaType, str) \
-                and isinstance(originOrderNo, str):
+        if not (isinstance(requestName, str)
+                and isinstance(screenNo, str)
+                and isinstance(accountNo, str)
+                and isinstance(orderType, int)
+                and isinstance(code, str)
+                and isinstance(qty, int)
+                and isinstance(price, int)
+                and isinstance(hogaType, str)
+                and isinstance(originOrderNo, str)):
 
-            errCode = self.dynamicCall("SendOrder(QString, QString, QString, int, QString, int, int, QString, QString)",
-                                       [requestName, screenNo, accountNo, orderType, code, qty, price, hogaType, originOrderNo])
+            raise ParameterTypeError()
+
+        errCode = self.dynamicCall("SendOrder(QString, QString, QString, int, QString, int, int, QString, QString)",
+                                   [requestName, screenNo, accountNo, orderType, code, qty, price, hogaType, originOrderNo])
+
         return errCode
 
     def getChejanData(self, fid):
@@ -269,6 +286,16 @@ class Kiwoom(QAxWidget):
         cmd = 'GetChejanData("%s")' % fid
         data = self.dynamicCall(cmd)
         return data
+
+
+class ParameterTypeError(Exception):
+    """ 파라미터 타입이 일치하지 않을 경우 발생하는 예외 """
+
+    def __init__(self, msg="파라미터 타입이 일치하지 않습니다."):
+        self.msg = msg
+
+    def __str__(self):
+        return self.msg
 
 
 if __name__ == "__main__":

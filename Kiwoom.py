@@ -238,8 +238,19 @@ class Kiwoom(QAxWidget):
         :return: int - api 문서의 에러코드표 참조
         """
 
-        errCode = self.dynamicCall("SendOrder(QString, QString, QString, int, QString, int, int, QString, QString)",
-                                   [requestName, screenNo, accountNo, orderType, code, qty, price, hogaType, originOrderNo])
+        errCode = None
+        if isinstance(requestName, str) \
+                and isinstance(screenNo, str) \
+                and isinstance(accountNo, str) \
+                and isinstance(orderType, int) \
+                and isinstance(code, str) \
+                and isinstance(qty, int) \
+                and isinstance(price, int) \
+                and isinstance(hogaType, str) \
+                and isinstance(originOrderNo, str):
+
+            errCode = self.dynamicCall("SendOrder(QString, QString, QString, int, QString, int, int, QString, QString)",
+                                       [requestName, screenNo, accountNo, orderType, code, qty, price, hogaType, originOrderNo])
         return errCode
 
     def getChejanData(self, fid):

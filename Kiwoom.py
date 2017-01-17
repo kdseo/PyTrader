@@ -277,6 +277,10 @@ class Kiwoom(QAxWidget):
         """
         주식 주문을 키움서버로 전송한다.
 
+        sendOrder() 메소드 실행시,
+        OnReceiveMsg, OnReceiveTrData, OnReceiveChejanData 이벤트가 발생한다.
+        이 중, 주문에 대한 결과 데이터를 얻기 위해서는 OnReceiveChejanData 이벤트를 통해서 처리한다.
+
         :param requestName: string - 주문 요청명(사용자 정의)
         :param screenNo: string - 화면번호(4자리)
         :param accountNo: string - 계좌번호(10자리)

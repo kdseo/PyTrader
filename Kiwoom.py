@@ -39,7 +39,7 @@ class Kiwoom(QAxWidget):
         print("receiveRealData 실행")
 
     def receiveMsg(self, screenNo, requestName, trCode, msg):
-        print("receiveMsg 실행")
+        print("receiveMsg 실행: ", msg)
 
     def receiveChejanData(self, gubun, itemCnt, fidList):
         """
@@ -50,7 +50,7 @@ class Kiwoom(QAxWidget):
         :param fidList: string - 데이터 구분은 ;(세미콜론) 이다.
         """
 
-        print("receiveChejanData 실행")
+        print("receiveChejanData 실행: ", fidList)
 
         print("gubun: ", gubun)
         print("주문번호: ", self.getChejanData(9203))
@@ -89,7 +89,6 @@ class Kiwoom(QAxWidget):
                 print(date, ": ", open, ' ', high, ' ', low, ' ', close)
 
         try:
-            # commRqData()에서 발생시킨 루프를 종료시킨다.
             self.rqLoop.exit()
         except AttributeError:
             pass
@@ -132,6 +131,9 @@ class Kiwoom(QAxWidget):
 
         if not isinstance(market, str):
             raise ParameterTypeError()
+
+        if market not in ['0', '3', '4', '5', '6', '8', '9', '10', '30']:
+            raise ParameterValueError()
 
         cmd = 'GetCodeListByMarket("%s")' % market
         codeList = self.dynamicCall(cmd)
@@ -220,7 +222,11 @@ class Kiwoom(QAxWidget):
 
             raise ParameterTypeError()
 
-        self.dynamicCall("CommRqData(QString, QString, int, QString)", requestName, trCode, inquiry, screenNo)
+        returnCode = self.dynamicCall("CommRqData(QString, QString, int, QString)", requestName, trCode, inquiry, screenNo)
+
+        if returnCode != ReturnCode.OP_ERR_NONE:
+            raise Exception("commRqData(): " + ReturnCode.CAUSE[returnCode])
+
         self.rqLoop = QEventLoop()
         self.rqLoop.exec_()
 
@@ -279,6 +285,7 @@ class Kiwoom(QAxWidget):
         return state
 
     def sendOrder(self, requestName, screenNo, accountNo, orderType, code, qty, price, hogaType, originOrderNo):
+
         """
         주식 주문을 키움서버로 전송한다.
 
@@ -346,7 +353,18 @@ class ParameterTypeError(Exception):
         return self.msg
 
 
+class ParameterValueError(Exception):
+    """ 파라미터로 사용할 수 없는 값을 사용할 경우 발생하는 예외 """
+
+    def __init__(self, msg="파라미터로 사용할 수 없는 값 입니다."):
+        self.msg = msg
+
+    def __str__(self):
+        return self.msg
+
+
 class ReturnCode(object):
+    """ 키움 OpenApi+ 함수들이 반환하는 값 """
 
     OP_ERR_NONE = 0 # 정상처리
     OP_ERR_FAIL = -10   # 실패

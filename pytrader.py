@@ -2,7 +2,7 @@ import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtCore import QTimer, QTime
 from PyQt5 import uic
-from Kiwoom import Kiwoom, ParameterTypeError
+from Kiwoom import Kiwoom, ParameterTypeError, ReturnCode
 
 
 ui = uic.loadUiType("pytrader.ui")[0]
@@ -69,7 +69,9 @@ class MyWindow(QMainWindow, ui):
         price = self.priceSpinBox.value()
 
         try:
-            self.kiwoom.sendOrder("sendOrder_req", "0101", account, orderType, code, qty, price, hogaType, "")
+            returnCode = self.kiwoom.sendOrder("sendOrder_req", "0101", account, orderType, code, qty, price, hogaType, "")
+            print("sendOrer() 결과: ", ReturnCode.CAUSE[returnCode])
+
         except ParameterTypeError as e:
             print("sendOrder(): ", e)
 

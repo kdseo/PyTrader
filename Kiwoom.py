@@ -42,7 +42,13 @@ class Kiwoom(QAxWidget):
         print("receiveMsg 실행")
 
     def receiveChejanData(self, gubun, itemCnt, fidList):
-        """ 주문 접수/확인 수신시 이벤트 """
+        """
+        주문 접수/확인 수신시 이벤트
+
+        :param gubun: string - 체결구분('0': 주문체결통보, '1': 잔고통보, '3': 특이신호)
+        :param itemCnt: int
+        :param fidList: string - 데이터 구분은 ;(세미콜론) 이다.
+        """
 
         print("receiveChejanData 실행")
 

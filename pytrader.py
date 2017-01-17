@@ -68,12 +68,10 @@ class MyWindow(QMainWindow, ui):
         qty = self.qtySpinBox.value()
         price = self.priceSpinBox.value()
 
-        # 예외 테스트
         try:
-            # self.kiwoom.sendOrder("sendOrder_req", "0101", account, orderType, code, qty, price, hogaType, "")
-            self.kiwoom.sendOrder("sendOrder_req", "0101", account, orderType, code, str(qty), price, hogaType, "")
+            self.kiwoom.sendOrder("sendOrder_req", "0101", account, orderType, code, qty, price, hogaType, "")
         except ParameterTypeError as e:
-            print(e)
+            print("sendOrder(): ", e)
 
 
 if __name__ == "__main__":

@@ -90,7 +90,6 @@ class Kiwoom(QAxWidget):
 
         try:
             # commRqData()에서 발생시킨 루프를 종료시킨다.
-            # 필요한지 고민중.
             self.rqLoop.exit()
         except AttributeError:
             pass
@@ -355,7 +354,7 @@ if __name__ == "__main__":
 
     kiwoom.setInputValue("종목코드", "039490")
     kiwoom.setInputValue("기준일자", "20160624")
-    kiwoom.setInputValue("수정주가구분", 1)
+    kiwoom.setInputValue("수정주가구분", "1")
 
     kiwoom.commRqData("opt10081_req", "opt10081", 0, "0101")
 
@@ -364,6 +363,8 @@ if __name__ == "__main__":
 
         kiwoom.setInputValue("종목코드", "039490")
         kiwoom.setInputValue("기준일자", "20160624")
-        kiwoom.setInputValue("수정주가구분", 1)
+        kiwoom.setInputValue("수정주가구분", "1")
 
         kiwoom.commRqData("opt10081_req", "opt10081", 2, "0101")
+
+    sys.exit(app.exec_())

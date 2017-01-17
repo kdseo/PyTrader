@@ -94,20 +94,20 @@ class Kiwoom(QAxWidget):
         except AttributeError:
             pass
 
-    def eventConnect(self, errCode):
+    def eventConnect(self, returnCode):
         """
         통신 연결 상태 변경시 이벤트
 
-        errCode가 0이면 로그인 성공
-        그 외에는 에러코드표 참조
+        returnCode가 0이면 로그인 성공
+        그 외에는 ReturnCode 클래스 참조.
 
-        :param errCode: int
+        :param returnCode: int
         """
 
-        if errCode == 0:
+        if returnCode == ReturnCode.OP_ERR_NONE:
             print("connected")
         else:
-            print("not connected")
+            print("not connected: ", ReturnCode.CAUSE[returnCode])
 
         self.loginLoop.exit()
 
@@ -310,10 +310,10 @@ class Kiwoom(QAxWidget):
 
             raise ParameterTypeError()
 
-        errCode = self.dynamicCall("SendOrder(QString, QString, QString, int, QString, int, int, QString, QString)",
+        returnCode = self.dynamicCall("SendOrder(QString, QString, QString, int, QString, int, int, QString, QString)",
                                    [requestName, screenNo, accountNo, orderType, code, qty, price, hogaType, originOrderNo])
 
-        return errCode
+        return returnCode
 
     def getChejanData(self, fid):
         """
@@ -356,14 +356,14 @@ class ReturnCode(object):
     OP_ERR_FIREWALL = -103  # 개인방화벽실패
     OP_ERR_MEMORY = -104    # 메모리보호실패
     OP_ERR_INPUT = -105 # 함수입력값오류
-    OP_ERR_SOCKET_CLOSED = -106 # 통신연결종류
+    OP_ERR_SOCKET_CLOSED = -106 # 통신연결종료
     OP_ERR_SISE_OVERFLOW = -200 # 시세조회과부하
     OP_ERR_RQ_STRUCT_FAIL = -201    # 전문작성초기화실패
     OP_ERR_RQ_STRING_FAIL = -202    # 전문작성입력값오류
     OP_ERR_NO_DATA = -203   # 데이터없음
     OP_ERR_OVER_MAX_DATA = -204 # 조회가능한종목수초과
     OP_ERR_DATA_RCV_FAIL = -205 # 데이터수신실패
-    OP_ERR_OVER_MAX_FID = -206  # 죄회가능한FID수초과
+    OP_ERR_OVER_MAX_FID = -206  # 조회가능한FID수초과
     OP_ERR_REAL_CANCEL = -207   # 실시간해제오류
     OP_ERR_ORD_WRONG_INPUT = -300   # 입력값오류
     OP_ERR_ORD_WRONG_ACCTNO = -301  # 계좌비밀번호없음
@@ -378,6 +378,38 @@ class ReturnCode(object):
     OP_ERR_MIS_500CNT_EXC = -310    # 주문수량500계약초과
     OP_ERR_ORD_WRONG_ACCTINFO = -340    # 계좌정보없음
     OP_ERR_ORD_SYMCODE_EMPTY = -500 # 종목코드없음
+
+    CAUSE = {
+        0: '정상처리',
+        -10: '실패',
+        -100: '사용자정보교환실패',
+        -102: '버전처리실패',
+        -103: '개인방화벽실패',
+        -104: '메모리보호실패',
+        -105: '함수입력값오류',
+        -106: '통신연결종료',
+        -200: '시세조회과부하',
+        -201: '전문작성초기화실패',
+        -202: '전문작성입력값오류',
+        -203: '데이터없음',
+        -204: '조회가능한종목수초과',
+        -205: '데이터수신실패',
+        -206: '조회가능한FID수초과',
+        -207: '실시간해제오류',
+        -300: '입력값오류',
+        -301: '계좌비밀번호없음',
+        -302: '타인계좌사용오류',
+        -303: '주문가격이20억원을초과',
+        -304: '주문가격이50억원을초과',
+        -305: '주문수량이총발행주수의1%초과오류',
+        -306: '주문수량이총발행주수의3%초과오류',
+        -307: '주문전송실패',
+        -308: '주문전송과부하',
+        -309: '주문수량300계약초과',
+        -310: '주문수량500계약초과',
+        -340: '계좌정보없음',
+        -500: '종목코드없음'
+    }
 
 
 if __name__ == "__main__":

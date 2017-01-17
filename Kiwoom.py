@@ -31,10 +31,20 @@ class Kiwoom(QAxWidget):
         self.OnEventConnect.connect(self.eventConnect)
         self.OnReceiveTrData.connect(self.receiveTrData)
         self.OnReceiveChejanData.connect(self.receiveChejanData)
+        self.OnReceiveRealData.connect(self.receiveRealData)
+        self.OnReceiveMsg.connect(self.receiveMsg)
 
     # 이벤트 정의
+    def receiveRealData(self, code, realType, realData):
+        print("receiveRealData 실행")
+
+    def receiveMsg(self, screenNo, requestName, trCode, msg):
+        print("receiveMsg 실행")
+
     def receiveChejanData(self, gubun, itemCnt, fidList):
         """ 주문 접수/확인 수신시 이벤트 """
+
+        print("receiveChejanData 실행")
 
         print("gubun: ", gubun)
         print("주문번호: ", self.getChejanData(9203))
@@ -56,6 +66,8 @@ class Kiwoom(QAxWidget):
         :param inquiry: string - 조회('0': 남은 데이터 없음, '2': 남은 데이터 있음)
         :return:
         """
+
+        print("receiveTrData 실행")
 
         self.inquiry = inquiry
 
@@ -307,7 +319,7 @@ class Kiwoom(QAxWidget):
         :return: string
         """
 
-        if not isinstance(fid, str):
+        if not isinstance(fid, int):
             raise ParameterTypeError()
 
         cmd = 'GetChejanData("%s")' % fid

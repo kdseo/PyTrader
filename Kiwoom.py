@@ -187,6 +187,9 @@ class Kiwoom(QAxWidget):
         if not isinstance(tag, str):
             raise ParameterTypeError()
 
+        if tag not in ['ACCOUNT_CNT', 'ACCNO', 'USER_ID', 'USER_NAME']:
+            raise ParameterValueError()
+
         cmd = 'GetLoginInfo("%s")' % tag
         info = self.dynamicCall(cmd)
         return info
@@ -319,6 +322,9 @@ class Kiwoom(QAxWidget):
 
         returnCode = self.dynamicCall("SendOrder(QString, QString, QString, int, QString, int, int, QString, QString)",
                                    [requestName, screenNo, accountNo, orderType, code, qty, price, hogaType, originOrderNo])
+
+        if returnCode != ReturnCode.OP_ERR_NONE:
+            raise Exception("sendOrder(): " + ReturnCode.CAUSE[returnCode])
 
         return returnCode
 

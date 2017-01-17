@@ -75,6 +75,9 @@ class MyWindow(QMainWindow, ui):
         except ParameterTypeError as e:
             print("sendOrder(): ", e)
 
+        except Exception as e:
+            print("sendOrder(): ", e)
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

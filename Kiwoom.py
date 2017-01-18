@@ -109,12 +109,12 @@ class Kiwoom(QAxWidget):
                 close = self.commGetData(trCode, "", requestName, i, "현재가")
                 print(date, ": ", open, ' ', high, ' ', low, ' ', close)
 
-        if requestName == "예수금상세현황요청":
+        elif requestName == "예수금상세현황요청":
             deposit = self.commGetData(trCode, "", requestName, 0, "d+2추정예수금")
             deposit = self.changeFormat(deposit)
             self.opw00001Data = deposit
 
-        if requestName == "계좌평가잔고내역요청":
+        elif requestName == "계좌평가잔고내역요청":
 
             # 계좌 평가 정보
             accountEvaluation = []

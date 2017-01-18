@@ -28,6 +28,7 @@ class Kiwoom(QAxWidget):
         self.inquiry = 0
         self.returnCode = None
 
+        # 잔고 및 보유종목 데이터
         self.opw00001Data = 0
         self.opw00018Data = {'accountEvaluation': [], 'stocks': []}
 
@@ -443,6 +444,11 @@ class Kiwoom(QAxWidget):
             formatStr = '-' + formatStr
 
         return formatStr
+
+    def opwDataReset(self):
+        """ 잔고 및 보유종목 데이터 초기화 """
+        self.opw00001Data = 0
+        self.opw00018Data = {'accountEvaluation': [], 'stocks': []}
 
 
 class ParameterTypeError(Exception):

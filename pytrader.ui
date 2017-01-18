@@ -146,6 +146,9 @@
        </property>
        <item>
         <widget class="QCheckBox" name="realtimeCheckBox">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
          <property name="maximumSize">
           <size>
            <width>170</width>

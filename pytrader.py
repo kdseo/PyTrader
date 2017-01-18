@@ -58,7 +58,9 @@ class MyWindow(QMainWindow, ui):
             self.statusbar.showMessage("현재시간: " + currentTime + " | " + state)
 
         else:
-            self.inquiryBalance()
+            # 실시간 조회 체크박스가 체크되어 있으면
+            if self.realtimeCheckBox.isChecked():
+                self.inquiryBalance()
 
     def setCodeName(self):
         """ 종목코드에 해당하는 한글명을 codeNameLineEdit에 설정한다. """
@@ -144,6 +146,9 @@ class MyWindow(QMainWindow, ui):
                 self.stocksTable.setItem(i, j, item)
 
         self.stocksTable.resizeRowsToContents()
+
+        # 데이터 초기화
+        self.kiwoom.opwDataReset()
 
     # 경고창
     def showDialog(self, grade, error):

@@ -43,11 +43,24 @@ class Kiwoom(QAxWidget):
         print("receiveRealData 실행")
 
     def receiveMsg(self, screenNo, requestName, trCode, msg):
+        """
+        수신 메시지 이벤트
+
+        사용자가 sendOrder(), commRqData() 등 서버로 어떤 요청을 하고
+        그 요청이 정상 처리되었을 경우에 한해서 수신 메시지 이벤트가 발생한다.
+
+        :param screenNo: string - 화면번호(4자리)
+        :param requestName: string - TR 요청명(사용자 정의)
+        :param trCode: string
+        :param msg: string - 서버로 부터의 메시지
+        """
+
         if self.returnCode != None:
-            print("receiveMsg 실행: ", ReturnCode.CAUSE[self.returnCode] + " : " + msg)
+            print("[receiveMsg] ", requestName + "의 처리결과: ", ReturnCode.CAUSE[self.returnCode] + " : ", msg)
             self.returnCode = None
+
         else:
-            print("receiveMsg 실행: ", msg)
+            print("[receiveMsg] ", requestName + " : ", msg)
 
     def receiveChejanData(self, gubun, itemCnt, fidList):
         """

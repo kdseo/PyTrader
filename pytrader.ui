@@ -44,7 +44,7 @@
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_3">
      <item>
-      <widget class="QTableWidget" name="tableWidget">
+      <widget class="QTableWidget" name="accountEvaluationTable">
        <property name="minimumSize">
         <size>
          <width>1251</width>
@@ -94,7 +94,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QTableWidget" name="tableWidget_2">
+      <widget class="QTableWidget" name="stocksTable">
        <property name="minimumSize">
         <size>
          <width>1251</width>
@@ -145,7 +145,7 @@
         <number>920</number>
        </property>
        <item>
-        <widget class="QCheckBox" name="checkBox">
+        <widget class="QCheckBox" name="realtimeCheckBox">
          <property name="maximumSize">
           <size>
            <width>170</width>
@@ -158,7 +158,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton">
+        <widget class="QPushButton" name="inquiryBtn">
          <property name="maximumSize">
           <size>
            <width>150</width>

@@ -6,11 +6,11 @@ last edit: 2017. 01. 18
 """
 
 
-import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
-from PyQt5.QtCore import QTimer, QTime
+import sys, time
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QTableWidget, QTableWidgetItem
+from PyQt5.QtCore import Qt, QTimer, QTime
 from PyQt5 import uic
-from Kiwoom import Kiwoom, ParameterTypeError, ReturnCode, KiwoomProcessingError
+from Kiwoom import Kiwoom, ParameterTypeError, ParameterValueError, KiwoomProcessingError
 
 
 ui = uic.loadUiType("pytrader.ui")[0]
@@ -26,26 +26,39 @@ class MyWindow(QMainWindow, ui):
         self.kiwoom.commConnect()
         self.codeList = self.kiwoom.getCodeList("0")
 
+        # 메인 타이머
         self.timer = QTimer(self)
         self.timer.start(1000)
         self.timer.timeout.connect(self.timeout)
 
+        # 잔고 및 보유종목 조회 타이머
+        self.inquiryTimer = QTimer(self)
+        self.inquiryTimer.start(1000*10)
+        self.inquiryTimer.timeout.connect(self.timeout)
+
         self.setAccountComboBox()
         self.codeLineEdit.textChanged.connect(self.setCodeName)
         self.orderBtn.clicked.connect(self.sendOrder)
+        self.inquiryBtn.clicked.connect(self.inquiryBalance)
 
     def timeout(self):
         """ 타임아웃 이벤트가 발생하면 호출되는 메서드 """
 
-        currentTime = QTime.currentTime().toString("hh:mm:ss")
-        state = ""
+        sender = self.sender()
 
-        if self.kiwoom.getConnectState() == 1:
-            state = "서버 연결중"
+        if id(sender) == self.timer:
+            currentTime = QTime.currentTime().toString("hh:mm:ss")
+            state = ""
+
+            if self.kiwoom.getConnectState() == 1:
+                state = "서버 연결중"
+            else:
+                state = "서버 미연결"
+
+            self.statusbar.showMessage("현재시간: " + currentTime + " | " + state)
+
         else:
-            state = "서버 미연결"
-
-        self.statusbar.showMessage("현재시간: " + currentTime + " | " + state)
+            self.inquiryBalance()
 
     def setCodeName(self):
         """ 종목코드에 해당하는 한글명을 codeNameLineEdit에 설정한다. """
@@ -82,6 +95,57 @@ class MyWindow(QMainWindow, ui):
         except (ParameterTypeError, KiwoomProcessingError) as e:
             self.showDialog('Critical', e)
 
+    def inquiryBalance(self):
+        """ 예수금상세현황과 계좌평가잔고내역을 요청후 테이블에 출력한다. """
+
+        try:
+            # 예수금상세현황요청
+            self.kiwoom.setInputValue("계좌번호", self.accountComboBox.currentText())
+            self.kiwoom.setInputValue("비밀번호", "0000")
+            self.kiwoom.commRqData("예수금상세현황요청", "opw00001", 0, "2000")
+
+            # 계좌평가잔고내역요청 - opw00018 은 한번에 20개의 종목정보를 반환
+            self.kiwoom.setInputValue("계좌번호", self.accountComboBox.currentText())
+            self.kiwoom.setInputValue("비밀번호", "0000")
+            self.kiwoom.commRqData("계좌평가잔고내역요청", "opw00018", 0, "2000")
+
+            while self.kiwoom.inquiry == '2':
+                time.sleep(0.2)
+
+                self.kiwoom.setInputValue("계좌번호", self.accountComboBox.currentText())
+                self.kiwoom.setInputValue("비밀번호", "0000")
+                self.kiwoom.commRqData("계좌평가잔고내역요청", "opw00018", 2, "2")
+
+        except (ParameterTypeError, ParameterValueError, KiwoomProcessingError) as e:
+            self.showDialog('Critical', e)
+
+        # accountEvaluationTable 테이블에 정보 출력
+        item = QTableWidgetItem(self.kiwoom.opw00001Data)   # d+2추정예수금
+        item.setTextAlignment(Qt.AlignVCenter | Qt.AlignRight)
+        self.accountEvaluationTable.setItem(0, 0, item)
+
+        for i in range(1, 6):
+            item = QTableWidgetItem(self.kiwoom.opw00018Data['accountEvaluation'][i-1])
+            item.setTextAlignment(Qt.AlignVCenter | Qt.AlignRight)
+            self.accountEvaluationTable.setItem(0, i, item)
+
+        self.accountEvaluationTable.resizeRowsToContents()
+
+        # stocksTable 테이블에 정보 출력
+        cnt = len(self.kiwoom.opw00018Data['stocks'])
+        self.stocksTable.setRowCount(cnt)
+
+        for i in range(cnt):
+            row = self.kiwoom.opw00018Data['stocks'][i]
+
+            for j in range(len(row)):
+                item = QTableWidgetItem(row[j])
+                item.setTextAlignment(Qt.AlignVCenter | Qt.AlignRight)
+                self.stocksTable.setItem(i, j, item)
+
+        self.stocksTable.resizeRowsToContents()
+
+    # 경고창
     def showDialog(self, grade, error):
         gradeTable = {'Information': 1, 'Warning': 2, 'Critical': 3, 'Question': 4}
 

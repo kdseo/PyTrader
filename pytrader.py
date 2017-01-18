@@ -80,7 +80,17 @@ class MyWindow(QMainWindow, ui):
             self.kiwoom.returnCode = self.kiwoom.sendOrder("sendOrder_req", "0101", account, orderType, code, qty, price, hogaType, "")
 
         except (ParameterTypeError, KiwoomProcessingError) as e:
-            self.kiwoom.showDialog('Critical', e.msg)
+            self.showDialog('Critical', e)
+
+    def showDialog(self, grade, error):
+        gradeTable = {'Information': 1, 'Warning': 2, 'Critical': 3, 'Question': 4}
+
+        dialog = QMessageBox()
+        dialog.setIcon(gradeTable[grade])
+        dialog.setText(error.msg)
+        dialog.setWindowTitle(grade)
+        dialog.setStandardButtons(QMessageBox.Ok)
+        dialog.exec_()
 
 
 if __name__ == "__main__":

@@ -49,8 +49,6 @@ class Kiwoom(QAxWidget):
         else:
             print("receiveMsg 실행: ", msg)
 
-        # self.showDialog('Information', ReturnCode.CAUSE[self.returnCode], msg)
-
     def receiveChejanData(self, gubun, itemCnt, fidList):
         """
         주문 접수/확인 수신시 이벤트
@@ -455,16 +453,6 @@ class Kiwoom(QAxWidget):
 
         return formatStr
 
-    def showDialog(self, grade, text, msg=""):
-        gradeTable = {'Information': 1, 'Warning': 2, 'Critical': 3, 'Question': 4}
-
-        dialog = QMessageBox()
-        dialog.setIcon(gradeTable[grade])
-        dialog.setText(text)
-        dialog.setInformativeText(msg)
-        dialog.setWindowTitle(grade)
-        dialog.setStandardButtons(QMessageBox.Ok)
-        dialog.exec_()
 
 class ParameterTypeError(Exception):
     """ 파라미터 타입이 일치하지 않을 경우 발생하는 예외 """
@@ -590,7 +578,7 @@ if __name__ == "__main__":
             kiwoom.commRqData("계좌평가잔고내역요청", "opw00018", 2, "2")
 
     except (ParameterTypeError, ParameterValueError, KiwoomProcessingError) as e:
-        kiwoom.showDialog('Critical', e.msg)
+        print(e)
 
     print("[opw00001]=============================")
     print(kiwoom.opw00001Data)

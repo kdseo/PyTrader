@@ -348,7 +348,7 @@ class Kiwoom(QAxWidget):
         data = self.dynamicCall(cmd)
         return data
 
-    def change_format(self, data, percent=0):
+    def changeFormat(self, data, percent=0):
 
         isMinus = False
 

@@ -99,7 +99,6 @@ class Kiwoom(QAxWidget):
         self.inquiry = inquiry
 
         if requestName == "주식일봉차트조회요청":
-
             cnt = self.getRepeatCnt(trCode, requestName)
 
             for i in range(cnt):
@@ -111,13 +110,11 @@ class Kiwoom(QAxWidget):
                 print(date, ": ", open, ' ', high, ' ', low, ' ', close)
 
         elif requestName == "예수금상세현황요청":
-
             deposit = self.commGetData(trCode, "", requestName, 0, "d+2추정예수금")
             deposit = self.changeFormat(deposit)
             self.opw00001Data = deposit
 
         elif requestName == "계좌평가잔고내역요청":
-
             # 계좌 평가 정보
             accountEvaluation = []
             keyList = ["총매입금액", "총평가금액", "총평가손익금액", "총수익률(%)", "추정예탁자산"]

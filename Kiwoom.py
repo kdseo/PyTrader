@@ -98,8 +98,7 @@ class Kiwoom(QAxWidget):
 
         self.inquiry = inquiry
 
-        # TODO: requestName 변경할 것.
-        if requestName == "opt10081_req":
+        if requestName == "주식일봉차트조회요청":
 
             cnt = self.getRepeatCnt(trCode, requestName)
 

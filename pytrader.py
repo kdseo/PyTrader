@@ -77,21 +77,10 @@ class MyWindow(QMainWindow, ui):
         price = self.priceSpinBox.value()
 
         try:
-            returnCode = self.kiwoom.sendOrder("sendOrder_req", "0101", account, orderType, code, qty, price, hogaType, "")
-            self.showDialog('Information', "sendOrder() 결과: " + ReturnCode.CAUSE[returnCode])
+            self.kiwoom.returnCode = self.kiwoom.sendOrder("sendOrder_req", "0101", account, orderType, code, qty, price, hogaType, "")
 
         except (ParameterTypeError, KiwoomProcessingError) as e:
-            self.showDialog('Critical', e)
-
-    def showDialog(self, grade, text):
-        gradeTable = {'Information': 1, 'Warning': 2, 'Critical': 3, 'Question': 4}
-
-        dialog = QMessageBox()
-        dialog.setIcon(gradeTable[grade])
-        dialog.setText(text)
-        dialog.setWindowTitle(grade)
-        dialog.setStandardButtons(QMessageBox.Ok)
-        dialog.exec_()
+            self.kiwoom.showDialog('Critical', e.msg)
 
 
 if __name__ == "__main__":

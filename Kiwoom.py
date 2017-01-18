@@ -12,7 +12,7 @@ import sys
 import time
 from PyQt5.QAxContainer import QAxWidget
 from PyQt5.QtCore import QEventLoop
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QMessageBox
 
 
 class Kiwoom(QAxWidget):
@@ -26,6 +26,7 @@ class Kiwoom(QAxWidget):
         self.loginLoop = None
         self.rqLoop = None
         self.inquiry = 0
+        self.returnCode = 0
 
         self.opw00001Data = 0
         self.opw00018Data = {'accountEvaluation': [], 'stocks': []}
@@ -42,7 +43,8 @@ class Kiwoom(QAxWidget):
         print("receiveRealData 실행")
 
     def receiveMsg(self, screenNo, requestName, trCode, msg):
-        print("receiveMsg 실행: ", msg)
+        print("receiveMsg 실행: ", ReturnCode.CAUSE[self.returnCode] + " : " + msg)
+        # self.showDialog('Information', ReturnCode.CAUSE[self.returnCode], msg)
 
     def receiveChejanData(self, gubun, itemCnt, fidList):
         """
@@ -448,6 +450,16 @@ class Kiwoom(QAxWidget):
 
         return formatStr
 
+    def showDialog(self, grade, text, msg=""):
+        gradeTable = {'Information': 1, 'Warning': 2, 'Critical': 3, 'Question': 4}
+
+        dialog = QMessageBox()
+        dialog.setIcon(gradeTable[grade])
+        dialog.setText(text)
+        dialog.setInformativeText(msg)
+        dialog.setWindowTitle(grade)
+        dialog.setStandardButtons(QMessageBox.Ok)
+        dialog.exec_()
 
 class ParameterTypeError(Exception):
     """ 파라미터 타입이 일치하지 않을 경우 발생하는 예외 """
@@ -476,6 +488,9 @@ class KiwoomProcessingError(Exception):
         self.msg = msg
 
     def __str__(self):
+        return self.msg
+
+    def __repr__(self):
         return self.msg
 
 
@@ -549,21 +564,28 @@ class ReturnCode(object):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
-    kiwoom = Kiwoom()
-    kiwoom.commConnect()
+    try:
+        kiwoom = Kiwoom()
+        kiwoom.commConnect()
 
-    kiwoom.setInputValue("계좌번호", "")
-    kiwoom.setInputValue("비밀번호", "0000")
-
-    kiwoom.commRqData("계좌평가잔고내역요청", "opw00018", 0, "2000")
-
-    while kiwoom.inquiry == '2':
-        time.sleep(0.2)
-
-        kiwoom.setInputValue("계좌번호", "")
+        kiwoom.setInputValue("계좌번호", "")    # 테스트시 자신의 모의계좌번호를 입력
         kiwoom.setInputValue("비밀번호", "0000")
+        kiwoom.commRqData("예수금상세현황요청", "opw00001", 0, "2000")
 
-        kiwoom.commRqData("계좌평가잔고내역요청", "opw00018", 2, "2")
+        kiwoom.setInputValue("계좌번호", "")    # 테스트시 자신의 모의계좌번호를 입력
+        kiwoom.setInputValue("비밀번호", "0000")
+        kiwoom.commRqData("계좌평가잔고내역요청", "opw00018", 0, "2000")
+
+        while kiwoom.inquiry == '2':
+            time.sleep(0.2)
+
+            kiwoom.setInputValue("계좌번호", "")    # 테스트시 자신의 모의계좌번호를 입력
+            kiwoom.setInputValue("비밀번호", "0000")
+
+            kiwoom.commRqData("계좌평가잔고내역요청", "opw00018", 2, "2")
+
+    except (ParameterTypeError, ParameterValueError, KiwoomProcessingError) as e:
+        kiwoom.showDialog('Critical', e.msg)
 
     print("[opw00001]=============================")
     print(kiwoom.opw00001Data)

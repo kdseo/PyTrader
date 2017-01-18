@@ -46,7 +46,7 @@ class MyWindow(QMainWindow, ui):
 
         sender = self.sender()
 
-        if id(sender) == self.timer:
+        if id(sender) == id(self.timer):
             currentTime = QTime.currentTime().toString("hh:mm:ss")
             state = ""
 

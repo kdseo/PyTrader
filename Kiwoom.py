@@ -27,6 +27,9 @@ class Kiwoom(QAxWidget):
         self.rqLoop = None
         self.inquiry = 0
 
+        self.opw00001Data = 0
+        self.opw00018Data = {'single': [], 'multi': []}
+
         # signal & slot
         self.OnEventConnect.connect(self.eventConnect)
         self.OnReceiveTrData.connect(self.receiveTrData)
@@ -87,6 +90,15 @@ class Kiwoom(QAxWidget):
                 low = self.commGetData(trCode, "", requestName, i, "저가")
                 close = self.commGetData(trCode, "", requestName, i, "현재가")
                 print(date, ": ", open, ' ', high, ' ', low, ' ', close)
+
+        if requestName == "예수금상세현황요청":
+            deposit = self.commGetData(trCode, "", requestName, 0, "d+2추정예수금")
+            deposit = self.changeFormat(deposit)
+            self.opw00001Data = deposit
+
+        if requestName == "계좌평가잔고내역요청":
+            cnt = self.getRepeatCnt(trCode, requestName)
+            print("cnt: ", cnt)
 
         try:
             self.rqLoop.exit()
@@ -486,19 +498,17 @@ if __name__ == "__main__":
     kiwoom = Kiwoom()
     kiwoom.commConnect()
 
-    kiwoom.setInputValue("종목코드", "039490")
-    kiwoom.setInputValue("기준일자", "20160624")
-    kiwoom.setInputValue("수정주가구분", "1")
+    kiwoom.setInputValue("계좌번호", "")
+    kiwoom.setInputValue("비밀번호", "0000")
 
-    kiwoom.commRqData("opt10081_req", "opt10081", 0, "0101")
+    kiwoom.commRqData("계좌평가잔고내역요청", "opw00018", 0, "2000")
 
     while kiwoom.inquiry == '2':
         time.sleep(0.2)
 
-        kiwoom.setInputValue("종목코드", "039490")
-        kiwoom.setInputValue("기준일자", "20160624")
-        kiwoom.setInputValue("수정주가구분", "1")
+        kiwoom.setInputValue("계좌번호", "")
+        kiwoom.setInputValue("비밀번호", "0000")
 
-        kiwoom.commRqData("opt10081_req", "opt10081", 2, "0101")
+        kiwoom.commRqData("계좌평가잔고내역요청", "opw00018", 2, "2")
 
     sys.exit(app.exec_())

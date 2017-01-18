@@ -28,7 +28,7 @@ class Kiwoom(QAxWidget):
         self.inquiry = 0
 
         self.opw00001Data = 0
-        self.opw00018Data = {'single': [], 'multi': []}
+        self.opw00018Data = {'accountEvaluation': [], 'stocks': []}
 
         # signal & slot
         self.OnEventConnect.connect(self.eventConnect)
@@ -97,8 +97,62 @@ class Kiwoom(QAxWidget):
             self.opw00001Data = deposit
 
         if requestName == "계좌평가잔고내역요청":
+
+            # 계좌 평가 정보
+            accountEvaluation = []
+
+            totalPurchasePrice = self.commGetData(trCode, "", requestName, 0, "총매입금액")
+            totalPurchasePrice = self.changeFormat(totalPurchasePrice)
+            accountEvaluation.append(totalPurchasePrice)
+
+            totalEvaluationPrice = self.commGetData(trCode, "", requestName, 0, "총평가금액")
+            totalEvaluationPrice = self.changeFormat(totalEvaluationPrice)
+            accountEvaluation.append(totalEvaluationPrice)
+
+            totalEvaluationProfitAndLossPrice = self.commGetData(trCode, "", requestName, 0, "총평가손익금액")
+            totalEvaluationProfitAndLossPrice = self.changeFormat(totalEvaluationProfitAndLossPrice)
+            accountEvaluation.append(totalEvaluationProfitAndLossPrice)
+
+            totalEarningRate = self.commGetData(trCode, "", requestName, 0, "총수익률(%)")
+            totalEarningRate = self.changeFormat(totalEarningRate, 1)
+            accountEvaluation.append(totalEarningRate)
+
+            estimatedDeposit = self.commGetData(trCode, "", requestName, 0, "추정예탁자산")
+            estimatedDeposit = self.changeFormat(estimatedDeposit)
+            accountEvaluation.append(estimatedDeposit)
+
+            self.opw00018Data['accountEvaluation'] = accountEvaluation
+
+            # 보유 종목 정보
             cnt = self.getRepeatCnt(trCode, requestName)
-            print("cnt: ", cnt)
+
+            for i in range(cnt):
+                stock = []
+
+                codeName = self.commGetData(trCode, "", requestName, i, "종목명")
+                stock.append(codeName)
+
+                qty = self.commGetData(trCode, "", requestName, i, "보유수량")
+                qty = self.changeFormat(qty)
+                stock.append(qty)
+
+                purchasePrice = self.commGetData(trCode, "", requestName, i, "매입가")
+                purchasePrice = self.changeFormat(purchasePrice)
+                stock.append(purchasePrice)
+
+                currentPrice = self.commGetData(trCode, "", requestName, i, "현재가")
+                currentPrice = self.changeFormat(currentPrice)
+                stock.append(currentPrice)
+
+                evaluationProfitAndLossPrice = self.commGetData(trCode, "", requestName, i, "평가손익")
+                evaluationProfitAndLossPrice = self.changeFormat(evaluationProfitAndLossPrice)
+                stock.append(evaluationProfitAndLossPrice)
+
+                earningRate = self.commGetData(trCode, "", requestName, i, "수익률(%)")
+                earningRate = self.changeFormat(earningRate, 2)
+                stock.append(earningRate)
+
+                self.opw00018Data['stocks'].append(stock)
 
         try:
             self.rqLoop.exit()

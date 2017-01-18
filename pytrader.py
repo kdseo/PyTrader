@@ -94,12 +94,15 @@ class MyWindow(QMainWindow, ui):
 
         try:
             self.kiwoom.returnCode = self.kiwoom.sendOrder("sendOrder_req", "0101", account, orderType, code, qty, price, hogaType, "")
+            self.inquiryBalance()
 
         except (ParameterTypeError, KiwoomProcessingError) as e:
             self.showDialog('Critical', e)
 
     def inquiryBalance(self):
         """ 예수금상세현황과 계좌평가잔고내역을 요청후 테이블에 출력한다. """
+
+        self.inquiryTimer.stop()
 
         try:
             # 예수금상세현황요청
@@ -150,6 +153,9 @@ class MyWindow(QMainWindow, ui):
 
         # 데이터 초기화
         self.kiwoom.opwDataReset()
+
+        # inquiryTimer 재시작
+        self.inquiryTimer.start(1000*10)
 
     # 경고창
     def showDialog(self, grade, error):

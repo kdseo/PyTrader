@@ -26,7 +26,7 @@ class Kiwoom(QAxWidget):
         self.loginLoop = None
         self.rqLoop = None
         self.inquiry = 0
-        self.returnCode = 0
+        self.returnCode = None
 
         self.opw00001Data = 0
         self.opw00018Data = {'accountEvaluation': [], 'stocks': []}
@@ -43,7 +43,12 @@ class Kiwoom(QAxWidget):
         print("receiveRealData 실행")
 
     def receiveMsg(self, screenNo, requestName, trCode, msg):
-        print("receiveMsg 실행: ", ReturnCode.CAUSE[self.returnCode] + " : " + msg)
+        if self.returnCode != None:
+            print("receiveMsg 실행: ", ReturnCode.CAUSE[self.returnCode] + " : " + msg)
+            self.returnCode = None
+        else:
+            print("receiveMsg 실행: ", msg)
+
         # self.showDialog('Information', ReturnCode.CAUSE[self.returnCode], msg)
 
     def receiveChejanData(self, gubun, itemCnt, fidList):

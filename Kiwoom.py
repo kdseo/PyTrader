@@ -370,7 +370,7 @@ class ParameterValueError(Exception):
 
 
 class KiwoomProcessingError(Exception):
-    """ 키움에서 처리실패에 관련된 리턴코드를 보낼 경우 발생하는 예외 """
+    """ 키움에서 처리실패에 관련된 리턴코드를 받았을 경우 발생하는 예외 """
 
     def __init__(self, msg="처리 실패"):
         self.msg = msg

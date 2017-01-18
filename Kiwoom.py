@@ -369,6 +369,16 @@ class ParameterValueError(Exception):
         return self.msg
 
 
+class KiwoomProcessingError(Exception):
+    """ 키움에서 처리실패에 관련된 리턴코드를 보낼 경우 발생하는 예외 """
+
+    def __init__(self, msg="처리 실패"):
+        self.msg = msg
+
+    def __str__(self):
+        return self.msg
+
+
 class ReturnCode(object):
     """ 키움 OpenApi+ 함수들이 반환하는 값 """
 

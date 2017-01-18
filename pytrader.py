@@ -78,7 +78,7 @@ class MyWindow(QMainWindow, ui):
 
         try:
             returnCode = self.kiwoom.sendOrder("sendOrder_req", "0101", account, orderType, code, qty, price, hogaType, "")
-            self.showDialog('Information', "sendOrer() 결과: " + ReturnCode.CAUSE[returnCode])
+            self.showDialog('Information', "sendOrder() 결과: " + ReturnCode.CAUSE[returnCode])
 
         except (ParameterTypeError, KiwoomProcessingError) as e:
             self.showDialog('Critical', e)
@@ -91,6 +91,7 @@ class MyWindow(QMainWindow, ui):
         dialog.setText(text)
         dialog.setWindowTitle(grade)
         dialog.setStandardButtons(QMessageBox.Ok)
+        dialog.exec_()
 
 
 if __name__ == "__main__":

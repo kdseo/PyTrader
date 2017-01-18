@@ -348,6 +348,40 @@ class Kiwoom(QAxWidget):
         data = self.dynamicCall(cmd)
         return data
 
+    def change_format(self, data, percent=0):
+
+        isMinus = False
+
+        if data.startswith('-'):
+            isMinus = True
+
+        stripStr = data.lstrip('-0')
+
+        if stripStr == '':
+            if percent == 1:
+                return '0.00'
+            else:
+                return '0'
+
+        if percent == 1:
+            stripInt = int(stripStr)
+            stripInt = stripInt / 100
+            formatStr = format(stripInt, ',.2f')
+        elif percent == 2:
+            stripFloat = float(stripStr)
+            formatStr = format(stripFloat, ',.2f')
+        else:
+            stripInt = int(stripStr)
+            formatStr = format(stripInt, ",d")
+
+        if formatStr.startswith('.'):
+            formatStr = '0' + formatStr
+
+        if isMinus:
+            formatStr = '-' + formatStr
+
+        return formatStr
+
 
 class ParameterTypeError(Exception):
     """ 파라미터 타입이 일치하지 않을 경우 발생하는 예외 """

@@ -98,7 +98,9 @@ class Kiwoom(QAxWidget):
 
         self.inquiry = inquiry
 
+        # TODO: requestName 변경할 것.
         if requestName == "opt10081_req":
+
             cnt = self.getRepeatCnt(trCode, requestName)
 
             for i in range(cnt):
@@ -110,6 +112,7 @@ class Kiwoom(QAxWidget):
                 print(date, ": ", open, ' ', high, ' ', low, ' ', close)
 
         elif requestName == "예수금상세현황요청":
+
             deposit = self.commGetData(trCode, "", requestName, 0, "d+2추정예수금")
             deposit = self.changeFormat(deposit)
             self.opw00001Data = deposit
@@ -118,57 +121,36 @@ class Kiwoom(QAxWidget):
 
             # 계좌 평가 정보
             accountEvaluation = []
+            keyList = ["총매입금액", "총평가금액", "총평가손익금액", "총수익률(%)", "추정예탁자산"]
 
-            totalPurchasePrice = self.commGetData(trCode, "", requestName, 0, "총매입금액")
-            totalPurchasePrice = self.changeFormat(totalPurchasePrice)
-            accountEvaluation.append(totalPurchasePrice)
+            for key in keyList:
+                value = self.commGetData(trCode, "", requestName, 0, key)
 
-            totalEvaluationPrice = self.commGetData(trCode, "", requestName, 0, "총평가금액")
-            totalEvaluationPrice = self.changeFormat(totalEvaluationPrice)
-            accountEvaluation.append(totalEvaluationPrice)
+                if key.startswith("총수익률"):
+                    value = self.changeFormat(value, 1)
+                else:
+                    value = self.changeFormat(value)
 
-            totalEvaluationProfitAndLossPrice = self.commGetData(trCode, "", requestName, 0, "총평가손익금액")
-            totalEvaluationProfitAndLossPrice = self.changeFormat(totalEvaluationProfitAndLossPrice)
-            accountEvaluation.append(totalEvaluationProfitAndLossPrice)
-
-            totalEarningRate = self.commGetData(trCode, "", requestName, 0, "총수익률(%)")
-            totalEarningRate = self.changeFormat(totalEarningRate, 1)
-            accountEvaluation.append(totalEarningRate)
-
-            estimatedDeposit = self.commGetData(trCode, "", requestName, 0, "추정예탁자산")
-            estimatedDeposit = self.changeFormat(estimatedDeposit)
-            accountEvaluation.append(estimatedDeposit)
+                accountEvaluation.append(value)
 
             self.opw00018Data['accountEvaluation'] = accountEvaluation
 
             # 보유 종목 정보
             cnt = self.getRepeatCnt(trCode, requestName)
+            keyList = ["종목명", "보유수량", "매입가", "현재가", "평가손익", "수익률(%)"]
 
             for i in range(cnt):
                 stock = []
 
-                codeName = self.commGetData(trCode, "", requestName, i, "종목명")
-                stock.append(codeName)
+                for key in keyList:
+                    value = self.commGetData(trCode, "", requestName, i, key)
 
-                qty = self.commGetData(trCode, "", requestName, i, "보유수량")
-                qty = self.changeFormat(qty)
-                stock.append(qty)
+                    if key.startswith("수익률"):
+                        value = self.changeFormat(value, 2)
+                    elif key != "종목명":
+                        value = self.changeFormat(value)
 
-                purchasePrice = self.commGetData(trCode, "", requestName, i, "매입가")
-                purchasePrice = self.changeFormat(purchasePrice)
-                stock.append(purchasePrice)
-
-                currentPrice = self.commGetData(trCode, "", requestName, i, "현재가")
-                currentPrice = self.changeFormat(currentPrice)
-                stock.append(currentPrice)
-
-                evaluationProfitAndLossPrice = self.commGetData(trCode, "", requestName, i, "평가손익")
-                evaluationProfitAndLossPrice = self.changeFormat(evaluationProfitAndLossPrice)
-                stock.append(evaluationProfitAndLossPrice)
-
-                earningRate = self.commGetData(trCode, "", requestName, i, "수익률(%)")
-                earningRate = self.changeFormat(earningRate, 2)
-                stock.append(earningRate)
+                    stock.append(value)
 
                 self.opw00018Data['stocks'].append(stock)
 

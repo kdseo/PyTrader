@@ -228,7 +228,7 @@ class Kiwoom(QAxWidget):
         returnCode = self.dynamicCall("CommRqData(QString, QString, int, QString)", requestName, trCode, inquiry, screenNo)
 
         if returnCode != ReturnCode.OP_ERR_NONE:
-            raise Exception("commRqData(): " + ReturnCode.CAUSE[returnCode])
+            raise KiwoomProcessingError("commRqData(): " + ReturnCode.CAUSE[returnCode])
 
         self.rqLoop = QEventLoop()
         self.rqLoop.exec_()
@@ -324,7 +324,7 @@ class Kiwoom(QAxWidget):
                                    [requestName, screenNo, accountNo, orderType, code, qty, price, hogaType, originOrderNo])
 
         if returnCode != ReturnCode.OP_ERR_NONE:
-            raise Exception("sendOrder(): " + ReturnCode.CAUSE[returnCode])
+            raise KiwoomProcessingError("sendOrder(): " + ReturnCode.CAUSE[returnCode])
 
         return returnCode
 

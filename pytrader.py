@@ -2,7 +2,7 @@ import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtCore import QTimer, QTime
 from PyQt5 import uic
-from Kiwoom import Kiwoom, ParameterTypeError, ReturnCode
+from Kiwoom import Kiwoom, ParameterTypeError, ReturnCode, KiwoomProcessingError
 
 
 ui = uic.loadUiType("pytrader.ui")[0]
@@ -75,7 +75,7 @@ class MyWindow(QMainWindow, ui):
         except ParameterTypeError as e:
             print("sendOrder(): ", e)
 
-        except Exception as e:
+        except KiwoomProcessingError as e:
             print("sendOrder(): ", e)
 
 

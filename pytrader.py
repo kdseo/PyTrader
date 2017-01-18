@@ -7,7 +7,7 @@ last edit: 2017. 01. 18
 
 
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
 from PyQt5.QtCore import QTimer, QTime
 from PyQt5 import uic
 from Kiwoom import Kiwoom, ParameterTypeError, ReturnCode, KiwoomProcessingError
@@ -78,13 +78,19 @@ class MyWindow(QMainWindow, ui):
 
         try:
             returnCode = self.kiwoom.sendOrder("sendOrder_req", "0101", account, orderType, code, qty, price, hogaType, "")
-            print("sendOrer() 결과: ", ReturnCode.CAUSE[returnCode])
+            self.showDialog('Information', "sendOrer() 결과: " + ReturnCode.CAUSE[returnCode])
 
-        except ParameterTypeError as e:
-            print("sendOrder(): ", e)
+        except (ParameterTypeError, KiwoomProcessingError) as e:
+            self.showDialog('Critical', e)
 
-        except KiwoomProcessingError as e:
-            print("sendOrder(): ", e)
+    def showDialog(self, grade, text):
+        gradeTable = {'Information': 1, 'Warning': 2, 'Critical': 3, 'Question': 4}
+
+        dialog = QMessageBox()
+        dialog.setIcon(gradeTable[grade])
+        dialog.setText(text)
+        dialog.setWindowTitle(grade)
+        dialog.setStandardButtons(QMessageBox.Ok)
 
 
 if __name__ == "__main__":

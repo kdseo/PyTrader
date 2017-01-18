@@ -565,4 +565,10 @@ if __name__ == "__main__":
 
         kiwoom.commRqData("계좌평가잔고내역요청", "opw00018", 2, "2")
 
+    print("[opw00001]=============================")
+    print(kiwoom.opw00001Data)
+    print("[opw00018]=============================")
+    print(kiwoom.opw00018Data['accountEvaluation'])
+    print(kiwoom.opw00018Data['stocks'])
+
     sys.exit(app.exec_())

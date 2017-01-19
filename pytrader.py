@@ -41,6 +41,9 @@ class MyWindow(QMainWindow, ui):
         self.orderBtn.clicked.connect(self.sendOrder)
         self.inquiryBtn.clicked.connect(self.inquiryBalance)
 
+        # 자동 선정 종목 리스트 테이블 설정
+        self.setAutomatedStocks()
+
     def timeout(self):
         """ 타임아웃 이벤트가 발생하면 호출되는 메서드 """
 
@@ -167,6 +170,37 @@ class MyWindow(QMainWindow, ui):
         dialog.setWindowTitle(grade)
         dialog.setStandardButtons(QMessageBox.Ok)
         dialog.exec_()
+
+    def setAutomatedStocks(self):
+        fileList = ["buy_list.txt", "sell_list.txt"]
+        automatedStocks = []
+
+        for file in fileList:
+            # utf-8로 작성된 파일을
+            # cp949 환경에서 읽기위해서 encoding 지정
+            with open(file, 'rt', encoding='utf-8') as f:
+                stocksList = f.readlines()
+                automatedStocks += stocksList
+
+        # 테이블 행수 설정
+        cnt = len(automatedStocks)
+        self.automatedStocksTable.setRowCount(cnt)
+
+        # 테이블에 출력
+        for i in range(cnt):
+            stocks = automatedStocks[i].split(';')
+
+            for j in range(len(stocks)):
+                if j == 1:
+                    name = self.kiwoom.getMasterCodeName(stocks[j].rstrip())
+                    item = QTableWidgetItem(name)
+                else:
+                    item = QTableWidgetItem(stocks[j].rstrip())
+
+                item.setTextAlignment(Qt.AlignVCenter | Qt.AlignCenter)
+                self.automatedStocksTable.setItem(i, j, item)
+
+        self.automatedStocksTable.resizeRowsToContents()
 
 
 if __name__ == "__main__":

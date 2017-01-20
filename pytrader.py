@@ -55,7 +55,7 @@ class MyWindow(QMainWindow, ui):
         # 메인 타이머
         if id(sender) == id(self.timer):
             currentTime = QTime.currentTime().toString("hh:mm:ss")
-            automaticOrderTime = QTime.currentTime().toString("hhmmss")
+            automaticOrderTime = QTime.currentTime().toString("hhmm")
 
             # 상태바 설정
             state = ""
@@ -68,7 +68,8 @@ class MyWindow(QMainWindow, ui):
             self.statusbar.showMessage("현재시간: " + currentTime + " | " + state)
 
             # 자동 주문 실행
-            if self.isAutomaticOrder and int(automaticOrderTime) >= 343:
+            # 1100은 11시 00분을 의미합니다.
+            if self.isAutomaticOrder and int(automaticOrderTime) >= 1100:
                 self.isAutomaticOrder = False
                 self.automaticOrder()
                 self.setAutomatedStocks()

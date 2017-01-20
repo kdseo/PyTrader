@@ -42,7 +42,7 @@ class MyWindow(QMainWindow, ui):
         self.inquiryBtn.clicked.connect(self.inquiryBalance)
 
         # 자동 주문
-        self.automaticOrder()
+        self.isAutomaticOrder = True
 
         # 자동 선정 종목 리스트 테이블 설정
         self.setAutomatedStocks()
@@ -55,6 +55,9 @@ class MyWindow(QMainWindow, ui):
         # 메인 타이머
         if id(sender) == id(self.timer):
             currentTime = QTime.currentTime().toString("hh:mm:ss")
+            automaticOrderTime = QTime.currentTime().toString("hhmmss")
+
+            # 상태바 설정
             state = ""
 
             if self.kiwoom.getConnectState() == 1:
@@ -63,6 +66,12 @@ class MyWindow(QMainWindow, ui):
                 state = "서버 미연결"
 
             self.statusbar.showMessage("현재시간: " + currentTime + " | " + state)
+
+            # 자동 주문 실행
+            if self.isAutomaticOrder and int(automaticOrderTime) >= 343:
+                self.isAutomaticOrder = False
+                self.automaticOrder()
+                self.setAutomatedStocks()
 
         # 실시간 조회 타이머
         else:

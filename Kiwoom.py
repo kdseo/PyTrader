@@ -41,7 +41,10 @@ class Kiwoom(QAxWidget):
 
     # 이벤트 정의
     def receiveRealData(self, code, realType, realData):
-        print("receiveRealData 실행")
+        print("[receiveRealData]")
+        print("code: ", code)
+        print("realType: ", realType)
+        print("realData: ", realData)
 
     def receiveMsg(self, screenNo, requestName, trCode, msg):
         """

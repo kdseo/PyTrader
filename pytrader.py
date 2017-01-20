@@ -41,6 +41,9 @@ class MyWindow(QMainWindow, ui):
         self.orderBtn.clicked.connect(self.sendOrder)
         self.inquiryBtn.clicked.connect(self.inquiryBalance)
 
+        # 자동 주문
+        self.automaticOrder()
+
         # 자동 선정 종목 리스트 테이블 설정
         self.setAutomatedStocks()
 
@@ -49,8 +52,8 @@ class MyWindow(QMainWindow, ui):
 
         sender = self.sender()
 
+        # 메인 타이머
         if id(sender) == id(self.timer):
-            # 메인 타이머
             currentTime = QTime.currentTime().toString("hh:mm:ss")
             state = ""
 
@@ -61,8 +64,8 @@ class MyWindow(QMainWindow, ui):
 
             self.statusbar.showMessage("현재시간: " + currentTime + " | " + state)
 
+        # 실시간 조회 타이머
         else:
-            # 실시간 조회 체크박스가 체크되어 있으면
             if self.realtimeCheckBox.isChecked():
                 self.inquiryBalance()
 
@@ -201,6 +204,55 @@ class MyWindow(QMainWindow, ui):
                 self.automatedStocksTable.setItem(i, j, item)
 
         self.automatedStocksTable.resizeRowsToContents()
+
+    def automaticOrder(self):
+        fileList = ["buy_list.txt", "sell_list.txt"]
+        hogaTypeTable = {'지정가': "00", '시장가': "03"}
+        account = self.accountComboBox.currentText()
+        automatedStocks = []
+
+        # 파일읽기
+        for file in fileList:
+            # utf-8로 작성된 파일을
+            # cp949 환경에서 읽기위해서 encoding 지정
+            with open(file, 'rt', encoding='utf-8') as f:
+                stocksList = f.readlines()
+                automatedStocks += stocksList
+
+        cnt = len(automatedStocks)
+
+        # 주문하기
+        buyResult = []
+        sellResult = []
+
+        for i in range(cnt):
+            stocks = automatedStocks[i].split(';')
+
+            code = stocks[1]
+            hoga = stocks[2]
+            qty = stocks[3]
+            price = stocks[4]
+
+            try:
+                if stocks[5].rstrip() == '매수전':
+                    self.kiwoom.sendOrder("sendOrder_req", "0101", account, 1, code, qty, price, hogaTypeTable[hoga], "")
+                    buyResult += automatedStocks[i].replace("매수전", "매수주문완료")
+
+                # 참고: 해당 종목을 현재도 보유하고 있다고 가정함.
+                elif stocks[5].rstrip() == '매도전':
+                    self.kiwoom.sendOrder("sendOrder_req", "0101", account, 2, code, qty, price, hogaTypeTable[hoga], "")
+                    sellResult += automatedStocks[i].replace("매도전", "매도주문완료")
+
+                self.inquiryBalance()
+
+            except (ParameterTypeError, KiwoomProcessingError) as e:
+                self.showDialog('Crtical', e)
+
+        # 결과저장하기
+        for file, result in zip(fileList, [buyResult, sellResult]):
+            with open(file, 'wt', encoding='utf-8') as f:
+                for data in result:
+                    f.write(data)
 
 
 if __name__ == "__main__":

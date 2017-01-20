@@ -235,18 +235,19 @@ class MyWindow(QMainWindow, ui):
 
             try:
                 if stocks[5].rstrip() == '매수전':
-                    self.kiwoom.sendOrder("sendOrder_req", "0101", account, 1, code, qty, price, hogaTypeTable[hoga], "")
+                    self.kiwoom.sendOrder("sendOrder_req", "0101", account, 1, code, int(qty), int(price), hogaTypeTable[hoga], "")
                     buyResult += automatedStocks[i].replace("매수전", "매수주문완료")
 
                 # 참고: 해당 종목을 현재도 보유하고 있다고 가정함.
                 elif stocks[5].rstrip() == '매도전':
-                    self.kiwoom.sendOrder("sendOrder_req", "0101", account, 2, code, qty, price, hogaTypeTable[hoga], "")
+                    self.kiwoom.sendOrder("sendOrder_req", "0101", account, 2, code, int(qty), int(price), hogaTypeTable[hoga], "")
                     sellResult += automatedStocks[i].replace("매도전", "매도주문완료")
 
-                self.inquiryBalance()
-
             except (ParameterTypeError, KiwoomProcessingError) as e:
-                self.showDialog('Crtical', e)
+                self.showDialog('Critical', e)
+
+        # 잔고및 보유종목 디스플레이 갱신
+        self.inquiryBalance()
 
         # 결과저장하기
         for file, result in zip(fileList, [buyResult, sellResult]):

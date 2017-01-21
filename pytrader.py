@@ -114,7 +114,7 @@ class MyWindow(QMainWindow, ui):
         price = self.priceSpinBox.value()
 
         try:
-            self.kiwoom.returnCode = self.kiwoom.sendOrder("sendOrder_req", "0101", account, orderType, code, qty, price, hogaType, "")
+            self.kiwoom.returnCode = self.kiwoom.sendOrder("수동주문", "0101", account, orderType, code, qty, price, hogaType, "")
             self.inquiryBalance()
 
         except (ParameterTypeError, KiwoomProcessingError) as e:
@@ -250,12 +250,12 @@ class MyWindow(QMainWindow, ui):
 
             try:
                 if stocks[5].rstrip() == '매수전':
-                    self.kiwoom.sendOrder("sendOrder_req", "0101", account, 1, code, int(qty), int(price), hogaTypeTable[hoga], "")
+                    self.kiwoom.sendOrder("자동매수주문", "0101", account, 1, code, int(qty), int(price), hogaTypeTable[hoga], "")
                     buyResult += automatedStocks[i].replace("매수전", "매수주문완료")
 
                 # 참고: 해당 종목을 현재도 보유하고 있다고 가정함.
                 elif stocks[5].rstrip() == '매도전':
-                    self.kiwoom.sendOrder("sendOrder_req", "0101", account, 2, code, int(qty), int(price), hogaTypeTable[hoga], "")
+                    self.kiwoom.sendOrder("자동매도주문", "0101", account, 2, code, int(qty), int(price), hogaTypeTable[hoga], "")
                     sellResult += automatedStocks[i].replace("매도전", "매도주문완료")
 
             except (ParameterTypeError, KiwoomProcessingError) as e:

@@ -17,9 +17,10 @@ from PyQt5.QtWidgets import QApplication
 
 class Kiwoom(QAxWidget):
 
-    def __init__(self):
+    def __init__(self, ui):
         super().__init__()
 
+        self.ui = ui
         self.setControl("KHOPENAPI.KHOpenAPICtrl.1")
 
         # instance var
@@ -60,11 +61,11 @@ class Kiwoom(QAxWidget):
         """
 
         if self.returnCode != None:
-            print("[receiveMsg] ", requestName + "의 처리결과: ", ReturnCode.CAUSE[self.returnCode] + " : ", msg)
+            self.ui.logTextEdit.append("[receiveMsg] ", requestName + "의 처리결과: ", ReturnCode.CAUSE[self.returnCode] + " : ", msg)
             self.returnCode = None
 
         else:
-            print("[receiveMsg] ", requestName + " : ", msg)
+            self.ui.logTextEdit.append("[receiveMsg] ", requestName + " : ", msg)
 
     def receiveChejanData(self, gubun, itemCnt, fidList):
         """

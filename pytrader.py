@@ -22,7 +22,7 @@ class MyWindow(QMainWindow, ui):
         self.setupUi(self)
         self.show()
 
-        self.kiwoom = Kiwoom(self)
+        self.kiwoom = Kiwoom()
         self.kiwoom.commConnect()
         self.codeList = self.kiwoom.getCodeList("0")
 

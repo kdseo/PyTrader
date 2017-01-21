@@ -50,6 +50,7 @@ class MyWindow(QMainWindow, ui):
     def timeout(self):
         """ 타임아웃 이벤트가 발생하면 호출되는 메서드 """
 
+        # 어떤 타이머에 의해서 호출되었는지 확인
         sender = self.sender()
 
         # 메인 타이머

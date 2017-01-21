@@ -74,6 +74,11 @@ class MyWindow(QMainWindow, ui):
                 self.automaticOrder()
                 self.setAutomatedStocks()
 
+            # log
+            if self.kiwoom.msg:
+                self.logTextEdit.append(self.kiwoom.msg)
+                self.kiwoom.msg = ""
+
         # 실시간 조회 타이머
         else:
             if self.realtimeCheckBox.isChecked():

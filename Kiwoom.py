@@ -27,6 +27,7 @@ class Kiwoom(QAxWidget):
         self.rqLoop = None
         self.inquiry = 0
         self.returnCode = None
+        self.msg = ""
 
         # 잔고 및 보유종목 데이터
         self.opw00001Data = 0
@@ -59,12 +60,7 @@ class Kiwoom(QAxWidget):
         :param msg: string - 서버로 부터의 메시지
         """
 
-        if self.returnCode != None:
-            print("[receiveMsg] ", requestName + "의 처리결과: ", ReturnCode.CAUSE[self.returnCode] + " : ", msg)
-            self.returnCode = None
-
-        else:
-            print("[receiveMsg] ", requestName + " : ", msg)
+        self.msg += requestName + ": " + msg + "\r\n\r\n"
 
     def receiveChejanData(self, gubun, itemCnt, fidList):
         """

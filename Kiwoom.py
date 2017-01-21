@@ -166,9 +166,9 @@ class Kiwoom(QAxWidget):
         """
 
         if returnCode == ReturnCode.OP_ERR_NONE:
-            print("connected")
+            self.msg += "연결 성공" + "\r\n\r\n"
         else:
-            print("not connected: ", ReturnCode.CAUSE[returnCode])
+            self.msg += "연결 끊김: 원인 - " + ReturnCode.CAUSE[returnCode] + "\r\n\r\n"
 
         self.loginLoop.exit()
 

@@ -193,12 +193,16 @@ class MyWindow(QMainWindow, ui):
         fileList = ["buy_list.txt", "sell_list.txt"]
         automatedStocks = []
 
-        for file in fileList:
-            # utf-8로 작성된 파일을
-            # cp949 환경에서 읽기위해서 encoding 지정
-            with open(file, 'rt', encoding='utf-8') as f:
-                stocksList = f.readlines()
-                automatedStocks += stocksList
+        try:
+            for file in fileList:
+                # utf-8로 작성된 파일을
+                # cp949 환경에서 읽기위해서 encoding 지정
+                with open(file, 'rt', encoding='utf-8') as f:
+                    stocksList = f.readlines()
+                    automatedStocks += stocksList
+        except Exception as e:
+            self.showDialog('Critical', e)
+            return
 
         # 테이블 행수 설정
         cnt = len(automatedStocks)
@@ -227,12 +231,16 @@ class MyWindow(QMainWindow, ui):
         automatedStocks = []
 
         # 파일읽기
-        for file in fileList:
-            # utf-8로 작성된 파일을
-            # cp949 환경에서 읽기위해서 encoding 지정
-            with open(file, 'rt', encoding='utf-8') as f:
-                stocksList = f.readlines()
-                automatedStocks += stocksList
+        try:
+            for file in fileList:
+                # utf-8로 작성된 파일을
+                # cp949 환경에서 읽기위해서 encoding 지정
+                with open(file, 'rt', encoding='utf-8') as f:
+                    stocksList = f.readlines()
+                    automatedStocks += stocksList
+        except Exception as e:
+            self.showDialog('Critical', e)
+            return
 
         cnt = len(automatedStocks)
 

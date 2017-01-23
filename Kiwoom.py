@@ -94,7 +94,9 @@ class Kiwoom(QAxWidget):
         :return:
         """
 
-        print("receiveTrData 실행")
+        print("==============================")
+        print("receiveTrData 실행: ", screenNo, requestName, trCode, recordName, inquiry)
+        print("==============================")
 
         self.inquiry = inquiry
 
@@ -276,9 +278,6 @@ class Kiwoom(QAxWidget):
         :param key: string
         :param value: string
         """
-
-        if not self.getConnectState():
-            raise KiwoomConnectError()
 
         if not (isinstance(key, str) and isinstance(value, str)):
             raise ParameterTypeError()

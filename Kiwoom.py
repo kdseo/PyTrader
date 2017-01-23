@@ -25,6 +25,8 @@ class Kiwoom(QAxWidget):
         # instance var
         self.loginLoop = None
         self.rqLoop = None
+        self.orderLoop = None
+        self.orderNo = ""
         self.inquiry = 0
         self.msg = ""
 
@@ -93,15 +95,15 @@ class Kiwoom(QAxWidget):
         :return:
         """
 
-        print("==============================")
         print("receiveTrData 실행: ", screenNo, requestName, trCode, recordName, inquiry)
 
-        if self.commGetData(trCode, "", requestName, 0, "주문번호"):
-            print("주문번호: ", self.commGetData(trCode, "", requestName, 0, "주문번호"))
-        else:
-            print("주문번호: ", "없음")
+        # 자동주문을 위한 주문번호와 주문루프
+        self.orderNo = self.commGetData(trCode, "", requestName, 0, "주문번호")
 
-        print("==============================")
+        try:
+            self.orderLoop.exit()
+        except AttributeError:
+            pass
 
         self.inquiry = inquiry
 
@@ -412,6 +414,9 @@ class Kiwoom(QAxWidget):
 
         if returnCode != ReturnCode.OP_ERR_NONE:
             raise KiwoomProcessingError("sendOrder(): " + ReturnCode.CAUSE[returnCode])
+
+        self.orderLoop = QEventLoop()
+        self.orderLoop.exec_()
 
     def getChejanData(self, fid):
         """

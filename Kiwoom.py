@@ -104,42 +104,20 @@ class Kiwoom(QAxWidget):
 
         self.msg += requestName + ": " + msg + "\r\n\r\n"
 
-    def receiveRealData(self, code, realType, realData):
-        print("[receiveRealData]")
-        print("code: ", code)
-        print("realType: ", realType)
-        print("realData: ", realData)
-
-    def receiveChejanData(self, gubun, itemCnt, fidList):
-        """
-        주문 접수/확인 수신시 이벤트
-
-        :param gubun: string - 체결구분('0': 주문체결통보, '1': 잔고통보, '3': 특이신호)
-        :param itemCnt: int
-        :param fidList: string - 데이터 구분은 ;(세미콜론) 이다.
-        """
-
-        print("receiveChejanData 실행: ", fidList)
-
-        print("gubun: ", gubun)
-        print("주문번호: ", self.getChejanData(9203))
-        print("종목명: ", self.getChejanData(302))
-        print("주문수량: ", self.getChejanData(900))
-        print("주문가격: ", self.getChejanData(901))
-
     def receiveTrData(self, screenNo, requestName, trCode, recordName, inquiry,
                       deprecated1, deprecated2, deprecated3, deprecated4):
         """
-        TR 수신시 이벤트
+        TR 수신 이벤트
 
-        requestName과 trCode는 commRqData()메소드의 매개변수와 매핑되는 값 이다.
+        조회요청 응답을 받거나 조회데이터를 수신했을 때 호출됩니다.
+        requestName과 trCode는 commRqData()메소드의 매개변수와 매핑되는 값 입니다.
+        조회데이터는 이 이벤트 메서드 내부에서 getCommData() 메서드를 이용해서 얻을 수 있습니다.
 
         :param screenNo: string - 화면번호(4자리)
         :param requestName: string - TR 요청명(commRqData() 메소드 호출시 사용된 requestName)
         :param trCode: string
         :param recordName: string
         :param inquiry: string - 조회('0': 남은 데이터 없음, '2': 남은 데이터 있음)
-        :return:
         """
 
         print("receiveTrData 실행: ", screenNo, requestName, trCode, recordName, inquiry)
@@ -211,6 +189,29 @@ class Kiwoom(QAxWidget):
         except AttributeError:
             pass
 
+    def receiveRealData(self, code, realType, realData):
+        print("[receiveRealData]")
+        print("code: ", code)
+        print("realType: ", realType)
+        print("realData: ", realData)
+
+    def receiveChejanData(self, gubun, itemCnt, fidList):
+        """
+        주문 접수/확인 수신시 이벤트
+
+        :param gubun: string - 체결구분('0': 주문체결통보, '1': 잔고통보, '3': 특이신호)
+        :param itemCnt: int
+        :param fidList: string - 데이터 구분은 ;(세미콜론) 이다.
+        """
+
+        print("receiveChejanData 실행: ", fidList)
+
+        print("gubun: ", gubun)
+        print("주문번호: ", self.getChejanData(9203))
+        print("종목명: ", self.getChejanData(302))
+        print("주문수량: ", self.getChejanData(900))
+        print("주문가격: ", self.getChejanData(901))
+
     ###############################################################
     # 메서드 정의: 로그인 관련 메서드                                    #
     ###############################################################
@@ -252,7 +253,7 @@ class Kiwoom(QAxWidget):
         GetServerGubun: 접속서버 구분을 반환합니다.(0: 모의투자, 그외: 실서버)
 
         :param tag: string
-        :param isConnectState: bool - 접속상태을 확인할 필요가 없는 경우에만 True로 설정.
+        :param isConnectState: bool - 접속상태을 확인할 필요가 없는 경우 True로 설정.
         :return: string
         """
 
@@ -269,6 +270,120 @@ class Kiwoom(QAxWidget):
         cmd = 'GetLoginInfo("%s")' % tag
         info = self.dynamicCall(cmd)
         return info
+
+    #################################################################
+    # 메서드 정의: 조회 관련 메서드                                        #
+    # 시세조회, 관심종목 조회, 조건검색 등 이들의 합산 조회 횟수가 1초에 5회까지 허용 #
+    #################################################################
+
+    def setInputValue(self, key, value):
+        """
+        TR 전송에 필요한 값을 설정한다.
+
+        :param key: string - TR에 명시된 input 이름
+        :param value: string - key에 해당하는 값
+        """
+
+        if not (isinstance(key, str) and isinstance(value, str)):
+            raise ParameterTypeError()
+
+        self.dynamicCall("SetInputValue(QString, QString)", key, value)
+
+    def commRqData(self, requestName, trCode, inquiry, screenNo):
+        """
+        키움서버에 TR 요청을 한다.
+
+        조회요청메서드이며 빈번하게 조회요청시, 시세과부하 에러값 -200이 리턴된다.
+
+        :param requestName: string - TR 요청명(사용자 정의)
+        :param trCode: string
+        :param inquiry: int - 조회(0: 조회, 2: 남은 데이터 이어서 요청)
+        :param screenNo: string - 화면번호(4자리)
+        """
+
+        if not self.getConnectState():
+            raise KiwoomConnectError()
+
+        if not (isinstance(requestName, str)
+                and isinstance(trCode, str)
+                and isinstance(inquiry, int)
+                and isinstance(screenNo, str)):
+
+            raise ParameterTypeError()
+
+        returnCode = self.dynamicCall("CommRqData(QString, QString, int, QString)", requestName, trCode, inquiry, screenNo)
+
+        if returnCode != ReturnCode.OP_ERR_NONE:
+            raise KiwoomProcessingError("commRqData(): " + ReturnCode.CAUSE[returnCode])
+
+        # 루프 생성: receiveTrData() 메서드에서 루프를 종료시킨다.
+        self.requestLoop = QEventLoop()
+        self.requestLoop.exec_()
+
+    def commGetData(self, trCode, realType, requestName, index, key):
+        """
+        데이터 획득 메서드
+
+        receiveTrData() 이벤트 메서드가 호출될 때, 그 안에서 조회데이터를 얻어오는 메서드입니다.
+        getCommData() 메서드로 위임.
+
+        :param trCode: string
+        :param realType: string - TR 요청시 ""(빈문자)로 처리
+        :param requestName: string - TR 요청명(commRqData() 메소드 호출시 사용된 requestName)
+        :param index: int
+        :param key: string
+        :return: string
+        """
+
+        return self.getCommData(trCode, requestName, index, key)
+
+    def getCommData(self, trCode, requestName, index, key):
+        """
+        데이터 획득 메서드
+
+        receiveTrData() 이벤트 메서드가 호출될 때, 그 안에서 조회데이터를 얻어오는 메서드입니다.
+
+        :param trCode: string
+        :param requestName: string - TR 요청명(commRqData() 메소드 호출시 사용된 requestName)
+        :param index: int
+        :param key: string - 수신 데이터에서 얻고자 하는 값의 키(출력항목이름)
+        :return: string
+        """
+
+        if not (isinstance(trCode, str)
+                and isinstance(requestName, str)
+                and isinstance(index, int)
+                and isinstance(key, str)):
+            raise ParameterTypeError()
+
+        data = self.dynamicCall("GetCommData(QString, QString, int, QString)",
+                                trCode, requestName, index, key)
+        return data.strip()
+
+    def getRepeatCnt(self, trCode, requestName):
+        """
+        서버로 부터 전달받은 데이터의 갯수를 리턴합니다.(멀티데이터의 갯수)
+
+        receiveTrData() 이벤트 메서드가 호출될 때, 그 안에서 사용해야 합니다.
+
+        키움 OpenApi+에서는 데이터를 싱글데이터와 멀티데이터로 구분합니다.
+        싱글데이터란, 서버로 부터 전달받은 데이터 내에서, 중복되는 키(항목이름)가 하나도 없을 경우.
+        예를들면, 데이터가 '종목코드', '종목명', '상장일', '상장주식수' 처럼 키(항목이름)가 중복되지 않는 경우를 말합니다.
+        반면 멀티데이터란, 서버로 부터 전달받은 데이터 내에서, 일정 간격으로 키(항목이름)가 반복될 경우를 말합니다.
+        예를들면, 10일간의 일봉데이터를 요청할 경우 '종목코드', '일자', '시가', '고가', '저가' 이러한 항목이 10번 반복되는 경우입니다.
+        이러한 멀티데이터의 경우 반복 횟수(=데이터의 갯수)만큼, 루프를 돌면서 처리하기 위해 이 메서드를 이용하여 멀티데이터의 갯수를 얻을 수 있습니다.
+
+        :param trCode: string
+        :param requestName: string - TR 요청명(commRqData() 메소드 호출시 사용된 requestName)
+        :return: int
+        """
+
+        if not (isinstance(trCode, str)
+                and isinstance(requestName, str)):
+            raise ParameterTypeError()
+
+        count = self.dynamicCall("GetRepeatCnt(QString, QString)", trCode, requestName)
+        return count
 
     def getCodeListByMarket(self, market):
         """
@@ -327,89 +442,6 @@ class Kiwoom(QAxWidget):
         cmd = 'GetMasterCodeName("%s")' % code
         name = self.dynamicCall(cmd)
         return name
-
-    def setInputValue(self, key, value):
-        """
-        TR 전송에 필요한 값을 설정한다.
-
-        :param key: string
-        :param value: string
-        """
-
-        if not (isinstance(key, str) and isinstance(value, str)):
-            raise ParameterTypeError()
-
-        self.dynamicCall("SetInputValue(QString, QString)", key, value)
-
-    def commRqData(self, requestName, trCode, inquiry, screenNo):
-        """
-        키움서버에 TR 요청을 한다.
-
-        :param requestName: string - TR 요청명(사용자 정의)
-        :param trCode: string
-        :param inquiry: int - 0(조회), 2(연속)
-        :param screenNo: string - 화면번호(4자리)
-        :return: int
-        """
-
-        if not self.getConnectState():
-            raise KiwoomConnectError()
-
-        if not (isinstance(requestName, str)
-                and isinstance(trCode, str)
-                and isinstance(inquiry, int)
-                and isinstance(screenNo, str)):
-
-            raise ParameterTypeError()
-
-        returnCode = self.dynamicCall("CommRqData(QString, QString, int, QString)", requestName, trCode, inquiry, screenNo)
-
-        if returnCode != ReturnCode.OP_ERR_NONE:
-            raise KiwoomProcessingError("commRqData(): " + ReturnCode.CAUSE[returnCode])
-
-        self.requestLoop = QEventLoop()
-        self.requestLoop.exec_()
-
-    def commGetData(self, trCode, realType, requestName, index, key):
-        """
-        요청한 TR의 반환 값을 가져온다.
-
-        :param trCode: string
-        :param realType: string - TR 요청시 ""(빈문자)로 처리
-        :param requestName: string - TR 요청명(commRqData() 메소드 호출시 사용된 requestName)
-        :param index: int
-        :param key: string
-        :return: string
-        """
-
-        if not (isinstance(trCode, str)
-                and isinstance(realType, str)
-                and isinstance(requestName, str)
-                and isinstance(index, int)
-                and isinstance(key, str)):
-
-            raise ParameterTypeError()
-
-        data = self.dynamicCall("CommGetData(QString, QString, QString, int, QString)",
-                                trCode, realType, requestName, index, key)
-        return data.strip()
-
-    def getRepeatCnt(self, trCode, requestName):
-        """
-        requestName으로 요청한 TR의 반환 값의 index 수를 반환 합니다.
-
-        :param trCode: string
-        :param requestName: string - TR 요청명(commRqData() 메소드 호출시 사용된 requestName)
-        :return: int
-        """
-
-        if not (isinstance(trCode, str)
-                and isinstance(requestName, str)):
-
-            raise ParameterTypeError()
-
-        count = self.dynamicCall("GetRepeatCnt(QString, QString)", trCode, requestName)
-        return count
 
     def sendOrder(self, requestName, screenNo, accountNo, orderType, code, qty, price, hogaType, originOrderNo):
 

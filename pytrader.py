@@ -273,6 +273,7 @@ class MyWindow(QMainWindow, ui):
                     # 주문 접수시
                     if self.kiwoom.orderNo:
                         buyResult += automatedStocks[i].replace("매수전", "매수주문완료")
+                        self.kiwoom.orderNo = ""
                     # 주문 미접수시
                     else:
                         buyResult += automatedStocks[i]

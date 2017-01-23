@@ -26,7 +26,6 @@ class Kiwoom(QAxWidget):
         self.loginLoop = None
         self.rqLoop = None
         self.inquiry = 0
-        self.returnCode = None
         self.msg = ""
 
         # 잔고 및 보유종목 데이터
@@ -96,6 +95,12 @@ class Kiwoom(QAxWidget):
 
         print("==============================")
         print("receiveTrData 실행: ", screenNo, requestName, trCode, recordName, inquiry)
+
+        if self.commGetData(trCode, "", requestName, 0, "주문번호"):
+            print("주문번호: ", self.commGetData(trCode, "", requestName, 0, "주문번호"))
+        else:
+            print("주문번호: ", "없음")
+
         print("==============================")
 
         self.inquiry = inquiry
@@ -385,7 +390,6 @@ class Kiwoom(QAxWidget):
         :param price: int - 주문단가
         :param hogaType: string - 거래구분(00: 지정가, 03: 시장가, 05: 조건부지정가, 06: 최유리지정가, 그외에는 api 문서참조)
         :param originOrderNo: string - 원 주문번호
-        :return: int - api 문서의 에러코드표 참조
         """
 
         if not self.getConnectState():
@@ -408,8 +412,6 @@ class Kiwoom(QAxWidget):
 
         if returnCode != ReturnCode.OP_ERR_NONE:
             raise KiwoomProcessingError("sendOrder(): " + ReturnCode.CAUSE[returnCode])
-
-        return returnCode
 
     def getChejanData(self, fid):
         """

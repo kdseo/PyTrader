@@ -126,7 +126,7 @@ class MyWindow(QMainWindow, ui):
 
         try:
             self.kiwoom.returnCode = self.kiwoom.sendOrder("수동주문", "0101", account, orderType, code, qty, price, hogaType, "")
-            self.inquiryBalance()
+            # self.inquiryBalance()
 
         except (ParameterTypeError, KiwoomProcessingError) as e:
             self.showDialog('Critical', e)

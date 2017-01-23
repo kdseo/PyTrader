@@ -22,16 +22,28 @@ class Kiwoom(QAxWidget):
 
         self.setControl("KHOPENAPI.KHOpenAPICtrl.1")
 
-        # instance var
+        # Loop 변수
+        # 비동기 방식으로 동작되는 이벤트를 동기화(순서대로 동작) 시킬 때
         self.loginLoop = None
         self.requestLoop = None
         self.orderLoop = None
+
+        # 에러
+        self.error = None
+
+        # 주문번호
         self.orderNo = ""
+
+        # 조회
         self.inquiry = 0
+
+        # 서버에서 받은 메시지
         self.msg = ""
 
-        # 잔고 및 보유종목 데이터
+        # 예수금 d+2
         self.opw00001Data = 0
+
+        # 보유종목 정보
         self.opw00018Data = {'accountEvaluation': [], 'stocks': []}
 
         # signal & slot
@@ -41,27 +53,62 @@ class Kiwoom(QAxWidget):
         self.OnReceiveRealData.connect(self.receiveRealData)
         self.OnReceiveMsg.connect(self.receiveMsg)
 
-    # 이벤트 정의
-    def receiveRealData(self, code, realType, realData):
-        print("[receiveRealData]")
-        print("code: ", code)
-        print("realType: ", realType)
-        print("realData: ", realData)
+    ###############################################################
+    # 이벤트 정의                                                    #
+    ###############################################################
+
+    def eventConnect(self, returnCode):
+        """
+        통신 연결 상태 변경시 이벤트
+
+        returnCode가 0이면 로그인 성공
+        그 외에는 ReturnCode 클래스 참조.
+
+        :param returnCode: int
+        """
+
+        if returnCode == ReturnCode.OP_ERR_NONE:
+
+            try:
+
+                if self.getLoginInfo("GetServerGubun"):
+                    self.msg += "실서버 연결 성공" + "\r\n\r\n"
+
+                else:
+                    self.msg += "모의투자서버 연결 성공" + "\r\n\r\n"
+
+            except (KiwoomConnectError, ParameterTypeError, ParameterValueError) as error:
+                self.error = error
+
+        else:
+            self.msg += "연결 끊김: 원인 - " + ReturnCode.CAUSE[returnCode] + "\r\n\r\n"
+
+        # commConnect() 메서드에 의해 생성된 루프를 종료시킨다.
+        # 로그인 후, 통신이 끊길 경우를 대비해서 예외처리함.
+        try:
+            self.loginLoop.exit()
+        except AttributeError:
+            pass
 
     def receiveMsg(self, screenNo, requestName, trCode, msg):
         """
         수신 메시지 이벤트
 
-        사용자가 sendOrder(), commRqData() 등 서버로 어떤 요청을 하고
-        그 요청이 정상 처리되었을 경우에 한해서 수신 메시지 이벤트가 발생한다.
+        서버로 어떤 요청을 했을 때(로그인, 주문, 조회 등), 그 요청에 대한 처리내용을 전달해준다.
 
-        :param screenNo: string - 화면번호(4자리)
+        :param screenNo: string - 화면번호(4자리, 사용자 정의, 서버에 조회나 주문을 요청할 때 이 요청을 구별하기 위한 키값)
         :param requestName: string - TR 요청명(사용자 정의)
         :param trCode: string
         :param msg: string - 서버로 부터의 메시지
         """
 
         self.msg += requestName + ": " + msg + "\r\n\r\n"
+
+    def receiveRealData(self, code, realType, realData):
+        print("[receiveRealData]")
+        print("code: ", code)
+        print("realType: ", realType)
+        print("realData: ", realData)
 
     def receiveChejanData(self, gubun, itemCnt, fidList):
         """
@@ -164,34 +211,62 @@ class Kiwoom(QAxWidget):
         except AttributeError:
             pass
 
-    def eventConnect(self, returnCode):
-        """
-        통신 연결 상태 변경시 이벤트
+    ###############################################################
+    # 메서드 정의: 로그인 관련 메서드                                    #
+    ###############################################################
 
-        returnCode가 0이면 로그인 성공
-        그 외에는 ReturnCode 클래스 참조.
-
-        :param returnCode: int
-        """
-
-        if returnCode == ReturnCode.OP_ERR_NONE:
-            if self.getLoginInfo("GetServerGubun"):
-                self.msg += "실서버 연결 성공" + "\r\n\r\n"
-            else:
-                self.msg += "모의투자서버 연결 성공" + "\r\n\r\n"
-
-        else:
-            self.msg += "연결 끊김: 원인 - " + ReturnCode.CAUSE[returnCode] + "\r\n\r\n"
-
-        self.loginLoop.exit()
-
-    # 메서드 정의
     def commConnect(self):
-        """ 로그인 윈도우를 실행한다. """
+        """
+        로그인을 시도합니다.
+
+        수동 로그인일 경우, 로그인창을 출력해서 로그인을 시도.
+        자동 로그인일 경우, 로그인창 출력없이 로그인 시도.
+        """
 
         self.dynamicCall("CommConnect()")
         self.loginLoop = QEventLoop()
         self.loginLoop.exec_()
+
+    def getConnectState(self):
+        """
+        현재 접속상태를 반환합니다.
+
+        반환되는 접속상태는 아래와 같습니다.
+        0: 미연결, 1: 연결
+
+        :return: int
+        """
+
+        state = self.dynamicCall("GetConnectState()")
+        return state
+
+    def getLoginInfo(self, tag):
+        """
+        사용자의 tag에 해당하는 정보를 반환한다.
+
+        tag에 올 수 있는 값은 아래와 같다.
+        ACCOUNT_CNT: 전체 계좌의 개수를 반환한다.
+        ACCNO: 전체 계좌 목록을 반환한다. 계좌별 구분은 ;(세미콜론) 이다.
+        USER_ID: 사용자 ID를 반환한다.
+        USER_NAME: 사용자명을 반환한다.
+        GetServerGubun: 접속서버 구분을 반환합니다.(0: 모의투자, 그외: 실서버)
+
+        :param tag: string
+        :return: string
+        """
+
+        if not self.getConnectState():
+            raise KiwoomConnectError()
+
+        if not isinstance(tag, str):
+            raise ParameterTypeError()
+
+        if tag not in ['ACCOUNT_CNT', 'ACCNO', 'USER_ID', 'USER_NAME', 'GetServerGubun']:
+            raise ParameterValueError()
+
+        cmd = 'GetLoginInfo("%s")' % tag
+        info = self.dynamicCall(cmd)
+        return info
 
     def getCodeListByMarket(self, market):
         """
@@ -250,33 +325,6 @@ class Kiwoom(QAxWidget):
         cmd = 'GetMasterCodeName("%s")' % code
         name = self.dynamicCall(cmd)
         return name
-
-    def getLoginInfo(self, tag):
-        """
-        사용자의 tag에 해당하는 정보를 반환한다.
-
-        tag에 올 수 있는 값은 아래와 같다.
-        ACCOUNT_CNT: 전체 계좌의 개수를 반환한다.
-        ACCNO: 전체 계좌 목록을 반환한다. 계좌별 구분은 ;(세미콜론) 이다.
-        USER_ID: 사용자 ID를 반환한다.
-        USER_NAME: 사용자명을 반환한다.
-
-        :param tag: string
-        :return: string
-        """
-
-        if not self.getConnectState():
-            raise KiwoomConnectError()
-
-        if not isinstance(tag, str):
-            raise ParameterTypeError()
-
-        if tag not in ['ACCOUNT_CNT', 'ACCNO', 'USER_ID', 'USER_NAME', 'GetServerGubun']:
-            raise ParameterValueError()
-
-        cmd = 'GetLoginInfo("%s")' % tag
-        info = self.dynamicCall(cmd)
-        return info
 
     def setInputValue(self, key, value):
         """
@@ -360,19 +408,6 @@ class Kiwoom(QAxWidget):
 
         count = self.dynamicCall("GetRepeatCnt(QString, QString)", trCode, requestName)
         return count
-
-    def getConnectState(self):
-        """
-        현재 접속상태를 반환합니다.
-
-        반환되는 접속상태는 아래와 같습니다.
-        0: 미연결, 1: 연결
-
-        :return: int
-        """
-
-        state = self.dynamicCall("GetConnectState()")
-        return state
 
     def sendOrder(self, requestName, screenNo, accountNo, orderType, code, qty, price, hogaType, originOrderNo):
 

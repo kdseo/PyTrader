@@ -67,28 +67,28 @@ class Kiwoom(QAxWidget):
         :param returnCode: int
         """
 
-        if returnCode == ReturnCode.OP_ERR_NONE:
+        try:
+            if returnCode == ReturnCode.OP_ERR_NONE:
 
-            try:
-
-                if self.getLoginInfo("GetServerGubun"):
+                if int(self.getLoginInfo("GetServerGubun", True)):
                     self.msg += "실서버 연결 성공" + "\r\n\r\n"
 
                 else:
                     self.msg += "모의투자서버 연결 성공" + "\r\n\r\n"
 
-            except (KiwoomConnectError, ParameterTypeError, ParameterValueError) as error:
-                self.error = error
+            else:
+                self.msg += "연결 끊김: 원인 - " + ReturnCode.CAUSE[returnCode] + "\r\n\r\n"
 
-        else:
-            self.msg += "연결 끊김: 원인 - " + ReturnCode.CAUSE[returnCode] + "\r\n\r\n"
+        except (ParameterTypeError, ParameterValueError) as error:
+            raise Exception("eventConnect()에서 에러 발생: ", error.msg)
 
-        # commConnect() 메서드에 의해 생성된 루프를 종료시킨다.
-        # 로그인 후, 통신이 끊길 경우를 대비해서 예외처리함.
-        try:
-            self.loginLoop.exit()
-        except AttributeError:
-            pass
+        finally:
+            # commConnect() 메서드에 의해 생성된 루프를 종료시킨다.
+            # 로그인 후, 통신이 끊길 경우를 대비해서 예외처리함.
+            try:
+                self.loginLoop.exit()
+            except AttributeError:
+                pass
 
     def receiveMsg(self, screenNo, requestName, trCode, msg):
         """
@@ -240,7 +240,7 @@ class Kiwoom(QAxWidget):
         state = self.dynamicCall("GetConnectState()")
         return state
 
-    def getLoginInfo(self, tag):
+    def getLoginInfo(self, tag, isConnectState=False):
         """
         사용자의 tag에 해당하는 정보를 반환한다.
 
@@ -252,11 +252,13 @@ class Kiwoom(QAxWidget):
         GetServerGubun: 접속서버 구분을 반환합니다.(0: 모의투자, 그외: 실서버)
 
         :param tag: string
+        :param isConnectState: bool - 접속상태을 확인할 필요가 없는 경우에만 True로 설정.
         :return: string
         """
 
-        if not self.getConnectState():
-            raise KiwoomConnectError()
+        if not isConnectState:
+            if not self.getConnectState():
+                raise KiwoomConnectError()
 
         if not isinstance(tag, str):
             raise ParameterTypeError()

@@ -77,7 +77,7 @@ class MyWindow(QMainWindow, ui):
 
             # 자동 주문 실행
             # 1100은 11시 00분을 의미합니다.
-            if self.isAutomaticOrder and int(automaticOrderTime) >= 200:
+            if self.isAutomaticOrder and int(automaticOrderTime) >= 1100:
                 self.isAutomaticOrder = False
                 self.automaticOrder()
                 self.setAutomatedStocks()

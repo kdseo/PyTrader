@@ -27,7 +27,6 @@ class Kiwoom(QAxWidget):
         self.rqLoop = None
         self.inquiry = 0
         self.returnCode = None
-        self.isConnectState = False
         self.msg = ""
 
         # 잔고 및 보유종목 데이터
@@ -170,10 +169,8 @@ class Kiwoom(QAxWidget):
         """
 
         if returnCode == ReturnCode.OP_ERR_NONE:
-            self.isConnectState = True
             self.msg += "연결 성공" + "\r\n\r\n"
         else:
-            self.isConnectState = False
             self.msg += "연결 끊김: 원인 - " + ReturnCode.CAUSE[returnCode] + "\r\n\r\n"
 
         self.loginLoop.exit()
@@ -252,7 +249,7 @@ class Kiwoom(QAxWidget):
         :return: string
         """
 
-        if not self.isConnectState:
+        if not self.getConnectState():
             raise KiwoomConnectError()
 
         if not isinstance(tag, str):

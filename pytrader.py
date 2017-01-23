@@ -23,6 +23,7 @@ class MyWindow(QMainWindow, ui):
         self.show()
 
         self.kiwoom = Kiwoom()
+        self.kiwoom.commConnect()
         self.codeList = self.kiwoom.getCodeList("0")
 
         # 메인 타이머
@@ -69,7 +70,7 @@ class MyWindow(QMainWindow, ui):
 
             # 자동 주문 실행
             # 1100은 11시 00분을 의미합니다.
-            if self.isAutomaticOrder and int(automaticOrderTime) >= 1100:
+            if self.isAutomaticOrder and int(automaticOrderTime) >= 1600:
                 self.isAutomaticOrder = False
                 self.automaticOrder()
                 self.setAutomatedStocks()

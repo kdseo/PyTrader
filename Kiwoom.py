@@ -40,9 +40,6 @@ class Kiwoom(QAxWidget):
         self.OnReceiveRealData.connect(self.receiveRealData)
         self.OnReceiveMsg.connect(self.receiveMsg)
 
-        # 키움서버 로그인
-        self.commConnect()
-
     # 이벤트 정의
     def receiveRealData(self, code, realType, realData):
         print("[receiveRealData]")
@@ -169,7 +166,11 @@ class Kiwoom(QAxWidget):
         """
 
         if returnCode == ReturnCode.OP_ERR_NONE:
-            self.msg += "연결 성공" + "\r\n\r\n"
+            if self.getLoginInfo("GetServerGubun"):
+                self.msg += "실서버 연결 성공" + "\r\n\r\n"
+            else:
+                self.msg += "모의투자서버 연결 성공" + "\r\n\r\n"
+
         else:
             self.msg += "연결 끊김: 원인 - " + ReturnCode.CAUSE[returnCode] + "\r\n\r\n"
 
@@ -261,7 +262,7 @@ class Kiwoom(QAxWidget):
         if not isinstance(tag, str):
             raise ParameterTypeError()
 
-        if tag not in ['ACCOUNT_CNT', 'ACCNO', 'USER_ID', 'USER_NAME']:
+        if tag not in ['ACCOUNT_CNT', 'ACCNO', 'USER_ID', 'USER_NAME', 'GetServerGubun']:
             raise ParameterValueError()
 
         cmd = 'GetLoginInfo("%s")' % tag

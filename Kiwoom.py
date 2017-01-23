@@ -41,6 +41,9 @@ class Kiwoom(QAxWidget):
         self.OnReceiveRealData.connect(self.receiveRealData)
         self.OnReceiveMsg.connect(self.receiveMsg)
 
+        # 키움서버 로그인
+        self.commConnect()
+
     # 이벤트 정의
     def receiveRealData(self, code, realType, realData):
         print("[receiveRealData]")

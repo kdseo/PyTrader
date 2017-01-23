@@ -23,7 +23,6 @@ class MyWindow(QMainWindow, ui):
         self.show()
 
         self.kiwoom = Kiwoom()
-        self.kiwoom.commConnect()
         self.codeList = self.kiwoom.getCodeList("0")
 
         # 메인 타이머

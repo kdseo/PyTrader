@@ -194,6 +194,9 @@ class Kiwoom(QAxWidget):
         :return: List
         """
 
+        if not self.getConnectState():
+            raise KiwoomConnectError()
+
         if not isinstance(market, str):
             raise ParameterTypeError()
 
@@ -227,6 +230,9 @@ class Kiwoom(QAxWidget):
         :param code: string - 종목코드
         :return: string - 종목코드의 한글명
         """
+
+        if not self.getConnectState():
+            raise KiwoomConnectError()
 
         if not isinstance(code, str):
             raise ParameterTypeError()
@@ -270,6 +276,9 @@ class Kiwoom(QAxWidget):
         :param value: string
         """
 
+        if not self.getConnectState():
+            raise KiwoomConnectError()
+
         if not (isinstance(key, str) and isinstance(value, str)):
             raise ParameterTypeError()
 
@@ -285,6 +294,9 @@ class Kiwoom(QAxWidget):
         :param screenNo: string - 화면번호(4자리)
         :return: int
         """
+
+        if not self.getConnectState():
+            raise KiwoomConnectError()
 
         if not (isinstance(requestName, str)
                 and isinstance(trCode, str)
@@ -375,6 +387,9 @@ class Kiwoom(QAxWidget):
         :param originOrderNo: string - 원 주문번호
         :return: int - api 문서의 에러코드표 참조
         """
+
+        if not self.getConnectState():
+            raise KiwoomConnectError()
 
         if not (isinstance(requestName, str)
                 and isinstance(screenNo, str)

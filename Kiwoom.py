@@ -24,7 +24,7 @@ class Kiwoom(QAxWidget):
 
         # instance var
         self.loginLoop = None
-        self.rqLoop = None
+        self.requestLoop = None
         self.orderLoop = None
         self.orderNo = ""
         self.inquiry = 0
@@ -160,7 +160,7 @@ class Kiwoom(QAxWidget):
                 self.opw00018Data['stocks'].append(stock)
 
         try:
-            self.rqLoop.exit()
+            self.requestLoop.exit()
         except AttributeError:
             pass
 
@@ -317,8 +317,8 @@ class Kiwoom(QAxWidget):
         if returnCode != ReturnCode.OP_ERR_NONE:
             raise KiwoomProcessingError("commRqData(): " + ReturnCode.CAUSE[returnCode])
 
-        self.rqLoop = QEventLoop()
-        self.rqLoop.exec_()
+        self.requestLoop = QEventLoop()
+        self.requestLoop.exec_()
 
     def commGetData(self, trCode, realType, requestName, index, key):
         """

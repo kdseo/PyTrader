@@ -10,7 +10,7 @@ import sys, time
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QTableWidget, QTableWidgetItem
 from PyQt5.QtCore import Qt, QTimer, QTime
 from PyQt5 import uic
-from Kiwoom import Kiwoom, ParameterTypeError, ParameterValueError, KiwoomProcessingError
+from Kiwoom import Kiwoom, ParameterTypeError, ParameterValueError, KiwoomProcessingError, KiwoomConnectError
 
 
 ui = uic.loadUiType("pytrader.ui")[0]
@@ -97,9 +97,12 @@ class MyWindow(QMainWindow, ui):
     def setAccountComboBox(self):
         """ accountComboBox에 계좌번호를 설정한다. """
 
-        cnt = int(self.kiwoom.getLoginInfo("ACCOUNT_CNT"))
-        accountList = self.kiwoom.getLoginInfo("ACCNO").split(';')
-        self.accountComboBox.addItems(accountList[0:cnt])
+        try:
+            cnt = int(self.kiwoom.getLoginInfo("ACCOUNT_CNT"))
+            accountList = self.kiwoom.getLoginInfo("ACCNO").split(';')
+            self.accountComboBox.addItems(accountList[0:cnt])
+        except (KiwoomConnectError, ParameterTypeError, ParameterValueError) as e:
+            self.showDialog('Critical', e)
 
     def sendOrder(self):
         """ 키움서버로 주문정보를 전송한다. """

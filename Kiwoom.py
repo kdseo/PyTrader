@@ -27,6 +27,7 @@ class Kiwoom(QAxWidget):
         self.rqLoop = None
         self.inquiry = 0
         self.returnCode = None
+        self.isConnectState = False
         self.msg = ""
 
         # 잔고 및 보유종목 데이터
@@ -166,8 +167,10 @@ class Kiwoom(QAxWidget):
         """
 
         if returnCode == ReturnCode.OP_ERR_NONE:
+            self.isConnectState = True
             self.msg += "연결 성공" + "\r\n\r\n"
         else:
+            self.isConnectState = False
             self.msg += "연결 끊김: 원인 - " + ReturnCode.CAUSE[returnCode] + "\r\n\r\n"
 
         self.loginLoop.exit()
@@ -245,6 +248,9 @@ class Kiwoom(QAxWidget):
         :param tag: string
         :return: string
         """
+
+        if not self.isConnectState:
+            raise KiwoomConnectError()
 
         if not isinstance(tag, str):
             raise ParameterTypeError()
@@ -480,6 +486,16 @@ class KiwoomProcessingError(Exception):
         return self.msg
 
     def __repr__(self):
+        return self.msg
+
+
+class KiwoomConnectError(Exception):
+    """ 키움서버에 로그인 상태가 아닐 경우 발생하는 예외 """
+
+    def __init__(self, msg="로그인 여부를 확인하십시오"):
+        self.msg = msg
+
+    def __str__(self):
         return self.msg
 
 

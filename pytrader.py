@@ -24,6 +24,12 @@ class MyWindow(QMainWindow, ui):
 
         self.kiwoom = Kiwoom()
         self.kiwoom.commConnect()
+
+        if self.kiwoom.getLoginInfo("GetServerGubun"):
+            self.serverGubun = "실제운영"
+        else:
+            self.serverGubun = "모의투자"
+
         self.codeList = self.kiwoom.getCodeList("0")
 
         # 메인 타이머
@@ -62,7 +68,8 @@ class MyWindow(QMainWindow, ui):
             state = ""
 
             if self.kiwoom.getConnectState() == 1:
-                state = "서버 연결중"
+
+                state = self.serverGubun + " 서버 연결중"
             else:
                 state = "서버 미연결"
 

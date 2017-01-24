@@ -82,8 +82,8 @@ class Kiwoom(QAxWidget):
         except (ParameterTypeError, ParameterValueError) as error:
             print("eventConnect(): ", error.msg)
 
-        except Exception as e:
-            print("eventConnect(): ", e)
+        except Exception as error:
+            print("eventConnect(): ", error)
 
         finally:
             # commConnect() 메서드에 의해 생성된 루프를 종료시킨다.

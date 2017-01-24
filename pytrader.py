@@ -48,7 +48,8 @@ class MyWindow(QMainWindow, ui):
         self.inquiryBtn.clicked.connect(self.inquiryBalance)
 
         # 자동 주문
-        self.isAutomaticOrder = True
+        # 자동 주문을 활성화 하려면 True로 설정
+        self.isAutomaticOrder = False
 
         # 자동 선정 종목 리스트 테이블 설정
         self.setAutomatedStocks()
@@ -77,7 +78,7 @@ class MyWindow(QMainWindow, ui):
 
             # 자동 주문 실행
             # 1100은 11시 00분을 의미합니다.
-            if self.isAutomaticOrder and int(automaticOrderTime) >= 1600:
+            if self.isAutomaticOrder and int(automaticOrderTime) >= 1100:
                 self.isAutomaticOrder = False
                 self.automaticOrder()
                 self.setAutomatedStocks()

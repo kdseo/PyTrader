@@ -77,7 +77,7 @@ class MyWindow(QMainWindow, ui):
 
             # 자동 주문 실행
             # 1100은 11시 00분을 의미합니다.
-            if self.isAutomaticOrder and int(automaticOrderTime) >= 1100:
+            if self.isAutomaticOrder and int(automaticOrderTime) >= 1600:
                 self.isAutomaticOrder = False
                 self.automaticOrder()
                 self.setAutomatedStocks()
@@ -211,6 +211,7 @@ class MyWindow(QMainWindow, ui):
                     stocksList = f.readlines()
                     automatedStocks += stocksList
         except Exception as e:
+            e.msg = "setAutomatedStocks() 에러"
             self.showDialog('Critical', e)
             return
 
@@ -249,6 +250,7 @@ class MyWindow(QMainWindow, ui):
                     stocksList = f.readlines()
                     automatedStocks += stocksList
         except Exception as e:
+            e.msg = "automaticOrder() 에러"
             self.showDialog('Critical', e)
             return
 

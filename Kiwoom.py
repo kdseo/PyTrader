@@ -70,7 +70,7 @@ class Kiwoom(QAxWidget):
         try:
             if returnCode == ReturnCode.OP_ERR_NONE:
 
-                if int(self.getLoginInfo("GetServerGubun", True)):
+                if self.getLoginInfo("GetServerGubun", True):
                     self.msg += "실서버 연결 성공" + "\r\n\r\n"
 
                 else:
@@ -80,7 +80,10 @@ class Kiwoom(QAxWidget):
                 self.msg += "연결 끊김: 원인 - " + ReturnCode.CAUSE[returnCode] + "\r\n\r\n"
 
         except (ParameterTypeError, ParameterValueError) as error:
-            raise Exception("eventConnect()에서 에러 발생: ", error.msg)
+            print("eventConnect(): ", error.msg)
+
+        except Exception as e:
+            print("eventConnect(): ", e)
 
         finally:
             # commConnect() 메서드에 의해 생성된 루프를 종료시킨다.

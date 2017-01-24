@@ -204,13 +204,14 @@ class Kiwoom(QAxWidget):
         :param fidList: string - 데이터 구분은 ;(세미콜론) 이다.
         """
 
-        print("receiveChejanData 실행: ", fidList)
-
+        fids = fidList.split(';')
+        print("[receiveChejanData]")
+        print("gubun: ", gubun, "itemCnt: ", itemCnt, "fidList: ", fidList)
+        print("========================================")
         print("gubun: ", gubun)
-        print("주문번호: ", self.getChejanData(9203))
-        print("종목명: ", self.getChejanData(302))
-        print("주문수량: ", self.getChejanData(900))
-        print("주문가격: ", self.getChejanData(901))
+        for fid in fids:
+            print(fid, ": ", self.getChejanData(int(fid)))
+        print("========================================")
 
     ###############################################################
     # 메서드 정의: 로그인 관련 메서드                                    #

@@ -202,6 +202,8 @@ class Kiwoom(QAxWidget):
         """
         주문 접수/확인 수신시 이벤트
 
+        주문요청후 주문접수, 체결통보, 잔고통보를 수신할 때 마다 호출됩니다.
+
         :param gubun: string - 체결구분('0': 주문접수/주문체결, '1': 잔고통보, '3': 특이신호)
         :param itemCnt: int - fid의 갯수
         :param fidList: string - fidList 구분은 ;(세미콜론) 이다.
@@ -389,6 +391,74 @@ class Kiwoom(QAxWidget):
         count = self.dynamicCall("GetRepeatCnt(QString, QString)", trCode, requestName)
         return count
 
+    #################################################################
+    # 메서드 정의: 주문과 잔고처리 관련 메서드                                #
+    # 1초에 5회까지 주문 허용                                            #
+    #################################################################
+
+    def sendOrder(self, requestName, screenNo, accountNo, orderType, code, qty, price, hogaType, originOrderNo):
+
+        """
+        주식 주문 메서드
+
+        sendOrder() 메소드 실행시,
+        OnReceiveMsg, OnReceiveTrData, OnReceiveChejanData 이벤트가 발생한다.
+        이 중, 주문에 대한 결과 데이터를 얻기 위해서는 OnReceiveChejanData 이벤트를 통해서 처리한다.
+        OnReceiveTrData 이벤트를 통해서는 주문번호를 얻을 수 있는데, 주문후 이 이벤트에서 주문번호가 ''공백으로 전달되면,
+        주문접수 실패를 의미한다.
+
+        :param requestName: string - 주문 요청명(사용자 정의)
+        :param screenNo: string - 화면번호(4자리)
+        :param accountNo: string - 계좌번호(10자리)
+        :param orderType: int - 주문유형(1: 신규매수, 2: 신규매도, 3: 매수취소, 4: 매도취소, 5: 매수정정, 6: 매도정정)
+        :param code: string - 종목코드
+        :param qty: int - 주문수량
+        :param price: int - 주문단가
+        :param hogaType: string - 거래구분(00: 지정가, 03: 시장가, 05: 조건부지정가, 06: 최유리지정가, 그외에는 api 문서참조)
+        :param originOrderNo: string - 원주문번호(신규주문에는 공백, 정정및 취소주문시 원주문번호르 입력합니다.)
+        """
+
+        if not self.getConnectState():
+            raise KiwoomConnectError()
+
+        if not (isinstance(requestName, str)
+                and isinstance(screenNo, str)
+                and isinstance(accountNo, str)
+                and isinstance(orderType, int)
+                and isinstance(code, str)
+                and isinstance(qty, int)
+                and isinstance(price, int)
+                and isinstance(hogaType, str)
+                and isinstance(originOrderNo, str)):
+
+            raise ParameterTypeError()
+
+        returnCode = self.dynamicCall("SendOrder(QString, QString, QString, int, QString, int, int, QString, QString)",
+                                      [requestName, screenNo, accountNo, orderType, code, qty, price, hogaType, originOrderNo])
+
+        if returnCode != ReturnCode.OP_ERR_NONE:
+            raise KiwoomProcessingError("sendOrder(): " + ReturnCode.CAUSE[returnCode])
+
+        self.orderLoop = QEventLoop()
+        self.orderLoop.exec_()
+
+    def getChejanData(self, fid):
+        """
+        주문접수, 주문체결, 잔고정보를 얻어오는 메서드
+
+        이 메서드는 receiveChejanData() 이벤트 메서드가 호출될 때 그 안에서 사용해야 합니다.
+
+        :param fid: int
+        :return: string
+        """
+
+        if not isinstance(fid, int):
+            raise ParameterTypeError()
+
+        cmd = 'GetChejanData("%s")' % fid
+        data = self.dynamicCall(cmd)
+        return data
+
     def getCodeListByMarket(self, market):
         """
         시장 구분에 따른 종목코드의 목록을 List로 반환한다.
@@ -446,70 +516,6 @@ class Kiwoom(QAxWidget):
         cmd = 'GetMasterCodeName("%s")' % code
         name = self.dynamicCall(cmd)
         return name
-
-    def sendOrder(self, requestName, screenNo, accountNo, orderType, code, qty, price, hogaType, originOrderNo):
-
-        """
-        주식 주문을 키움서버로 전송한다.
-
-        sendOrder() 메소드 실행시,
-        OnReceiveMsg, OnReceiveTrData, OnReceiveChejanData 이벤트가 발생한다.
-        이 중, 주문에 대한 결과 데이터를 얻기 위해서는 OnReceiveChejanData 이벤트를 통해서 처리한다.
-
-        :param requestName: string - 주문 요청명(사용자 정의)
-        :param screenNo: string - 화면번호(4자리)
-        :param accountNo: string - 계좌번호(10자리)
-        :param orderType: int - 주문유형(1: 신규매수, 2: 신규매도, 3: 매수취소, 4: 매도취소, 5: 매수정정, 6: 매도정정)
-        :param code: string - 종목코드
-        :param qty: int - 주문수량
-        :param price: int - 주문단가
-        :param hogaType: string - 거래구분(00: 지정가, 03: 시장가, 05: 조건부지정가, 06: 최유리지정가, 그외에는 api 문서참조)
-        :param originOrderNo: string - 원 주문번호
-        """
-
-        if not self.getConnectState():
-            raise KiwoomConnectError()
-
-        if not (isinstance(requestName, str)
-                and isinstance(screenNo, str)
-                and isinstance(accountNo, str)
-                and isinstance(orderType, int)
-                and isinstance(code, str)
-                and isinstance(qty, int)
-                and isinstance(price, int)
-                and isinstance(hogaType, str)
-                and isinstance(originOrderNo, str)):
-
-            raise ParameterTypeError()
-
-        returnCode = self.dynamicCall("SendOrder(QString, QString, QString, int, QString, int, int, QString, QString)",
-                                   [requestName, screenNo, accountNo, orderType, code, qty, price, hogaType, originOrderNo])
-
-        if returnCode != ReturnCode.OP_ERR_NONE:
-            raise KiwoomProcessingError("sendOrder(): " + ReturnCode.CAUSE[returnCode])
-
-        self.orderLoop = QEventLoop()
-        self.orderLoop.exec_()
-
-    def getChejanData(self, fid):
-        """
-        체결잔고 데이터를 반환한다.
-
-        주문 체결관련 FID
-        9202: 주문번호, 302: 종목명, 900: 주문수량, 901: 주문가격, 902: 미체결수량, 904: 원주문번호,
-        905: 주문구분, 908: 주문/체결시간, 909: 체결번호, 910: 체결가, 911: 체결량, 10: 현재가, 체결가, 실시간 종가
-        그 외의 FID는 api 문서 참조
-
-        :param fid: int
-        :return: string
-        """
-
-        if not isinstance(fid, int):
-            raise ParameterTypeError()
-
-        cmd = 'GetChejanData("%s")' % fid
-        data = self.dynamicCall(cmd)
-        return data
 
     def changeFormat(self, data, percent=0):
 

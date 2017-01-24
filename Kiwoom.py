@@ -202,9 +202,9 @@ class Kiwoom(QAxWidget):
         """
         주문 접수/확인 수신시 이벤트
 
-        :param gubun: string - 체결구분('0': 주문체결통보, '1': 잔고통보, '3': 특이신호)
-        :param itemCnt: int
-        :param fidList: string - 데이터 구분은 ;(세미콜론) 이다.
+        :param gubun: string - 체결구분('0': 주문접수/주문체결, '1': 잔고통보, '3': 특이신호)
+        :param itemCnt: int - fid의 갯수
+        :param fidList: string - fidList 구분은 ;(세미콜론) 이다.
         """
 
         fids = fidList.split(';')

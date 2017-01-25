@@ -136,6 +136,12 @@ class Kiwoom(QAxWidget):
         self.inquiry = inquiry
 
         if requestName == "주식일봉차트조회요청":
+            data = self.getCommDataEx(trCode, "주식일봉차트조회")
+
+            print(type(data))
+            print(data)
+
+            """ commGetData
             cnt = self.getRepeatCnt(trCode, requestName)
 
             for i in range(cnt):
@@ -145,6 +151,7 @@ class Kiwoom(QAxWidget):
                 low = self.commGetData(trCode, "", requestName, i, "저가")
                 close = self.commGetData(trCode, "", requestName, i, "현재가")
                 print(date, ": ", open, ' ', high, ' ', low, ' ', close)
+            """
 
         elif requestName == "예수금상세현황요청":
             deposit = self.commGetData(trCode, "", requestName, 0, "d+2추정예수금")
@@ -390,6 +397,24 @@ class Kiwoom(QAxWidget):
 
         count = self.dynamicCall("GetRepeatCnt(QString, QString)", trCode, requestName)
         return count
+
+    def getCommDataEx(self, trCode, requestName):
+        """
+        멀티데이터 획득 메서드
+
+        receiveTrData() 이벤트 메서드가 호출될 때, 그 안에서 사용해야 합니다.
+
+        :param trCode: string
+        :param requestName: string
+        :return:
+        """
+
+        if not (isinstance(trCode, str)
+                and isinstance(requestName, str)):
+            raise ParameterTypeError()
+
+        data = self.dynamicCall("GetCommDataEx(QString, QString)", trCode, requestName)
+        return data
 
     #################################################################
     # 메서드 정의: 주문과 잔고처리 관련 메서드                                #
@@ -739,6 +764,24 @@ if __name__ == "__main__":
         kiwoom = Kiwoom()
         kiwoom.commConnect()
 
+        kiwoom.setInputValue("종목코드", "066570")
+        kiwoom.setInputValue("기준일자", "20160101")
+        kiwoom.setInputValue("수정주가구분", "1")
+        kiwoom.commRqData("주식일봉차트조회요청", "opt10081", 0, "0101")
+
+    except Exception as e:
+        print(e)
+
+    sys.exit(app.exec_())
+
+
+    """
+    app = QApplication(sys.argv)
+
+    try:
+        kiwoom = Kiwoom()
+        kiwoom.commConnect()
+
         kiwoom.setInputValue("계좌번호", "")    # 테스트시 자신의 모의계좌번호를 입력
         kiwoom.setInputValue("비밀번호", "0000")
         kiwoom.commRqData("예수금상세현황요청", "opw00001", 0, "2000")
@@ -765,3 +808,4 @@ if __name__ == "__main__":
     print(kiwoom.opw00018Data['stocks'])
 
     sys.exit(app.exec_())
+    """

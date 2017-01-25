@@ -215,7 +215,7 @@ class Kiwoom(QAxWidget):
         print("========================================")
         print("gubun: ", gubun)
         for fid in fids:
-            print(FidList.CHEJAN[fid], ": ", self.getChejanData(int(fid)))
+            print(FidList.CHEJAN[int(fid)] if int(fid) in FidList.CHEJAN else fid, ": ", self.getChejanData(int(fid)))
         print("========================================")
 
     ###############################################################
@@ -730,8 +730,6 @@ class FidList(object):
         305: '상한가',
         306: '하한가'
     }
-
-
 
 
 if __name__ == "__main__":

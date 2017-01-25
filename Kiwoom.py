@@ -213,7 +213,7 @@ class Kiwoom(QAxWidget):
         print("[receiveChejanData]")
         print("gubun: ", gubun, "itemCnt: ", itemCnt, "fidList: ", fidList)
         print("========================================")
-        print("gubun: ", gubun)
+        print("[ 구분: ", self.getChejanData(913) if '913' in fids else '잔고통보', "]")
         for fid in fids:
             print(FidList.CHEJAN[int(fid)] if int(fid) in FidList.CHEJAN else fid, ": ", self.getChejanData(int(fid)))
         print("========================================")

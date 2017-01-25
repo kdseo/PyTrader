@@ -13,6 +13,7 @@ import time
 from PyQt5.QAxContainer import QAxWidget
 from PyQt5.QtCore import QEventLoop
 from PyQt5.QtWidgets import QApplication
+from pandas import Series, DataFrame
 
 
 class Kiwoom(QAxWidget):
@@ -138,8 +139,13 @@ class Kiwoom(QAxWidget):
         if requestName == "주식일봉차트조회요청":
             data = self.getCommDataEx(trCode, "주식일봉차트조회")
 
+            colName = ['종목코드', '현재가', '거래량', '거래대금', '일자', '시가', '고가', '저가',
+                       '수정주가구분', '수정비율', '대업종구분', '소업종구분', '종목정보', '수정주가이벤트', '전일종가']
+
+            data = DataFrame(data, columns=colName)
+
             print(type(data))
-            print(data)
+            print(data.head(5))
 
             """ commGetData
             cnt = self.getRepeatCnt(trCode, requestName)
@@ -398,22 +404,22 @@ class Kiwoom(QAxWidget):
         count = self.dynamicCall("GetRepeatCnt(QString, QString)", trCode, requestName)
         return count
 
-    def getCommDataEx(self, trCode, requestName):
+    def getCommDataEx(self, trCode, multiDataName):
         """
         멀티데이터 획득 메서드
 
         receiveTrData() 이벤트 메서드가 호출될 때, 그 안에서 사용해야 합니다.
 
         :param trCode: string
-        :param requestName: string
-        :return:
+        :param multiDataName: string - KOA에 명시된 멀티데이터명
+        :return: list - 중첩리스트
         """
 
         if not (isinstance(trCode, str)
-                and isinstance(requestName, str)):
+                and isinstance(multiDataName, str)):
             raise ParameterTypeError()
 
-        data = self.dynamicCall("GetCommDataEx(QString, QString)", trCode, requestName)
+        data = self.dynamicCall("GetCommDataEx(QString, QString)", trCode, multiDataName)
         return data
 
     #################################################################
@@ -768,6 +774,7 @@ if __name__ == "__main__":
         kiwoom.setInputValue("기준일자", "20160101")
         kiwoom.setInputValue("수정주가구분", "1")
         kiwoom.commRqData("주식일봉차트조회요청", "opt10081", 0, "0101")
+        # 연속조회 생략 - 아래 주석 코드 참조
 
     except Exception as e:
         print(e)

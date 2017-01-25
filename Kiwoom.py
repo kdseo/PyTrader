@@ -125,7 +125,7 @@ class Kiwoom(QAxWidget):
 
         print("receiveTrData 실행: ", screenNo, requestName, trCode, recordName, inquiry)
 
-        # 자동주문을 위한 주문번호와 주문루프
+        # 주문번호와 주문루프
         self.orderNo = self.commGetData(trCode, "", requestName, 0, "주문번호")
 
         try:
@@ -439,6 +439,7 @@ class Kiwoom(QAxWidget):
         if returnCode != ReturnCode.OP_ERR_NONE:
             raise KiwoomProcessingError("sendOrder(): " + ReturnCode.CAUSE[returnCode])
 
+        # receiveTrData() 에서 루프종료
         self.orderLoop = QEventLoop()
         self.orderLoop.exec_()
 

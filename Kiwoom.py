@@ -437,7 +437,7 @@ class Kiwoom(QAxWidget):
 
     def commKwRqData(self, codes, inquiry, codeCount, requestName, screenNo, typeFlag=0):
         """
-        복수종목조회 메서드
+        복수종목조회 메서드(관심종목조회 메서드라고도 함).
 
         이 메서드는 setInputValue() 메서드를 이용하여, 사전에 필요한 값을 지정하지 않는다.
         단지, 메서드의 매개변수에서 직접 종목코드를 지정하여 호출하며,

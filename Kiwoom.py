@@ -136,12 +136,18 @@ class Kiwoom(QAxWidget):
 
         self.inquiry = inquiry
 
-        if requestName == "관심종목복수조회":
+        if requestName == "관심종목정보요청":
+            data = self.getCommDataEx(trCode, "관심종목정보")
+            print(type(data))
+            print(data)
+
+            """ commGetData
             cnt = self.getRepeatCnt(trCode, requestName)
 
             for i in range(cnt):
                 data = self.commGetData(trCode, "", requestName, i, "종목명")
                 print(data)
+            """
 
         elif requestName == "주식일봉차트조회요청":
             data = self.getCommDataEx(trCode, "주식일봉차트조회")
@@ -433,21 +439,35 @@ class Kiwoom(QAxWidget):
         """
         복수종목조회 메서드
 
-        복수종목조회 TR 코드는 OPTKWFID
+        이 메서드는 setInputValue() 메서드를 이용하여, 사전에 필요한 값을 지정하지 않는다.
+        단지, 메서드의 매개변수에서 직접 종목코드를 지정하여 호출하며,
+        처리 결과는 receiveTrData() 이벤트에서 처리하며,
+        처리방식은 commRqData()를 호출했을 때와 같다.
 
-        :param codes: string
-        :param inquiry: bool
-        :param codeCount: int
+        복수종목조회 TR 코드는 OPTKWFID 이며, 요청 성공시 아래 항목들의 정보를 얻을 수 있다.
+
+        종목코드, 종목명, 현재가, 기준가, 전일대비, 전일대비기호, 등락율, 거래량, 거래대금,
+        체결량, 체결강도, 전일거래량대비, 매도호가, 매수호가, 매도1~5차호가, 매수1~5차호가,
+        상한가, 하한가, 시가, 고가, 저가, 종가, 체결시간, 예상체결가, 예상체결량, 자본금,
+        액면가, 시가총액, 주식수, 호가시간, 일자, 우선매도잔량, 우선매수잔량,우선매도건수,
+        우선매수건수, 총매도잔량, 총매수잔량, 총매도건수, 총매수건수, 패리티, 기어링, 손익분기,
+        잔본지지, ELW행사가, 전환비율, ELW만기일, 미결제약정, 미결제전일대비, 이론가,
+        내재변동성, 델타, 감마, 쎄타, 베가, 로
+
+        :param codes: string - 한번에 100종목까지 조회가능하며 종목코드사이에 세미콜론(;)으로 구분.
+        :param inquiry: int - api 문서는 bool 타입이지만, int로 처리(0: 조회, 1: 남은 데이터 이어서 조회)
+        :param codeCount: int - codes에 지정한 종목의 갯수.
         :param requestName: string
         :param screenNo: string
-        :param typeFlag: int
+        :param typeFlag: int - 주식과 선물옵션 구분(0: 주식, 3: 선물옵션), 주의: 매개변수의 위치를 맨 뒤로 이동함.
+        :return: list - 중첩 리스트 [[종목코드, 종목명 ... 종목 정보], [종목코드, 종목명 ... 종목 정보]]
         """
 
         if not self.getConnectState():
             raise KiwoomConnectError()
 
         if not (isinstance(codes, str)
-                and isinstance(inquiry, bool)
+                and isinstance(inquiry, int)
                 and isinstance(codeCount, int)
                 and isinstance(requestName, str)
                 and isinstance(screenNo, str)
@@ -461,7 +481,6 @@ class Kiwoom(QAxWidget):
         if returnCode != ReturnCode.OP_ERR_NONE:
             raise KiwoomProcessingError("commKwRqData(): " + ReturnCode.CAUSE[returnCode])
 
-        # TODO: 여기
         # 루프 생성: receiveTrData() 메서드에서 루프를 종료시킨다.
         self.requestLoop = QEventLoop()
         self.requestLoop.exec_()
@@ -815,7 +834,7 @@ if __name__ == "__main__":
         kiwoom = Kiwoom()
         kiwoom.commConnect()
 
-        kiwoom.commKwRqData("066570;005930", 0, 2, "관심종목복수조회", "1000")
+        kiwoom.commKwRqData("066570;005930", 0, 2, "관심종목정보요청", "1000")
 
     except Exception as e:
         print(e)

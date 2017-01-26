@@ -136,7 +136,14 @@ class Kiwoom(QAxWidget):
 
         self.inquiry = inquiry
 
-        if requestName == "주식일봉차트조회요청":
+        if requestName == "관심종목복수조회":
+            cnt = self.getRepeatCnt(trCode, requestName)
+
+            for i in range(cnt):
+                data = self.commGetData(trCode, "", requestName, i, "종목명")
+                print(data)
+
+        elif requestName == "주식일봉차트조회요청":
             data = self.getCommDataEx(trCode, "주식일봉차트조회")
 
             colName = ['종목코드', '현재가', '거래량', '거래대금', '일자', '시가', '고가', '저가',
@@ -421,6 +428,43 @@ class Kiwoom(QAxWidget):
 
         data = self.dynamicCall("GetCommDataEx(QString, QString)", trCode, multiDataName)
         return data
+
+    def commKwRqData(self, codes, inquiry, codeCount, requestName, screenNo, typeFlag=0):
+        """
+        복수종목조회 메서드
+
+        복수종목조회 TR 코드는 OPTKWFID
+
+        :param codes: string
+        :param inquiry: bool
+        :param codeCount: int
+        :param requestName: string
+        :param screenNo: string
+        :param typeFlag: int
+        """
+
+        if not self.getConnectState():
+            raise KiwoomConnectError()
+
+        if not (isinstance(codes, str)
+                and isinstance(inquiry, bool)
+                and isinstance(codeCount, int)
+                and isinstance(requestName, str)
+                and isinstance(screenNo, str)
+                and isinstance(typeFlag, int)):
+
+            raise ParameterTypeError()
+
+        returnCode = self.dynamicCall("CommKwRqData(QString, QBoolean, int, int, QString, QString)",
+                                      codes, inquiry, codeCount, typeFlag, requestName, screenNo)
+
+        if returnCode != ReturnCode.OP_ERR_NONE:
+            raise KiwoomProcessingError("commKwRqData(): " + ReturnCode.CAUSE[returnCode])
+
+        # TODO: 여기
+        # 루프 생성: receiveTrData() 메서드에서 루프를 종료시킨다.
+        self.requestLoop = QEventLoop()
+        self.requestLoop.exec_()
 
     #################################################################
     # 메서드 정의: 주문과 잔고처리 관련 메서드                                #
@@ -764,6 +808,21 @@ class FidList(object):
 
 
 if __name__ == "__main__":
+
+    app = QApplication(sys.argv)
+
+    try:
+        kiwoom = Kiwoom()
+        kiwoom.commConnect()
+
+        kiwoom.commKwRqData("066570;005930", 0, 2, "관심종목복수조회", "1000")
+
+    except Exception as e:
+        print(e)
+
+    sys.exit(app.exec_())
+
+    """ getCommDataEx
     app = QApplication(sys.argv)
 
     try:
@@ -780,9 +839,9 @@ if __name__ == "__main__":
         print(e)
 
     sys.exit(app.exec_())
-
-
     """
+
+    """ getCommData
     app = QApplication(sys.argv)
 
     try:

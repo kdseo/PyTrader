@@ -554,6 +554,10 @@ class Kiwoom(QAxWidget):
         data = self.dynamicCall(cmd)
         return data
 
+    ###############################################################
+    # 기타 메서드 정의                                                #
+    ###############################################################
+
     def getCodeListByMarket(self, market):
         """
         시장 구분에 따른 종목코드의 목록을 List로 반환한다.

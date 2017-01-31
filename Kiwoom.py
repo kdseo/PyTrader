@@ -219,6 +219,17 @@ class Kiwoom(QAxWidget):
             pass
 
     def receiveRealData(self, code, realType, realData):
+        """
+        실시간 데이터 수신 이벤트
+
+        실시간 데이터를 수신할 때 마다 호출되며,
+        setRealReg() 메서드로 등록한 실시간 데이터도 이 이벤트 메서드에 전달됩니다.
+        getCommRealData() 메서드를 이용해서 실시간 데이터를 얻을 수 있습니다.
+
+        :param code: string - 종목코드
+        :param realType: string - 실시간 타입(KOA의 실시간 목록 참조)
+        :param realData: string - 실시간 데이터 전문
+        """
         print("[receiveRealData]")
         print("code: ", code)
         print("realType: ", realType)
@@ -485,10 +496,50 @@ class Kiwoom(QAxWidget):
         self.requestLoop = QEventLoop()
         self.requestLoop.exec_()
 
-    #################################################################
-    # 메서드 정의: 주문과 잔고처리 관련 메서드                                #
-    # 1초에 5회까지 주문 허용                                            #
-    #################################################################
+    ###############################################################
+    # 메서드 정의: 실시간 데이터 처리 관련 메서드                           #
+    ###############################################################
+
+    def disconnectRealData(self, screenNo):
+        """
+        해당 화면번호로 설정한 모든 실시간 데이터 요청을 제거합니다.
+
+        화면을 종료할 때 반드시 이 메서드를 호출해야 합니다.
+
+        :param screenNo: string
+        """
+
+        if not self.getConnectState():
+            raise KiwoomConnectError()
+
+        if not isinstance(screenNo, str):
+            raise ParameterTypeError()
+
+        self.dynamicCall("DisconnectRealData(QString)", screenNo)
+
+    def getCommRealData(self, code, fid):
+        """
+        실시간 데이터 획득 메서드
+
+        이 메서드는 반드시 receiveRealData() 이벤트 메서드가 호출될 때, 그 안에서 사용해야 합니다.
+
+        :param code: string - 종목코드
+        :param fid: - 실시간 타입에 포함된 fid
+        :return: string - fid에 해당하는 데이터
+        """
+
+        if not (isinstance(code, str)
+                and isinstance(fid, int)):
+            raise ParameterTypeError()
+
+        value = self.dynamicCall("GetCommRealData(QString, int)", code, fid)
+
+        return value
+
+    ###############################################################
+    # 메서드 정의: 주문과 잔고처리 관련 메서드                              #
+    # 1초에 5회까지 주문 허용                                          #
+    ###############################################################
 
     def sendOrder(self, requestName, screenNo, accountNo, orderType, code, qty, price, hogaType, originOrderNo):
 

@@ -230,10 +230,35 @@ class Kiwoom(QAxWidget):
         :param realType: string - 실시간 타입(KOA의 실시간 목록 참조)
         :param realData: string - 실시간 데이터 전문
         """
+
         print("[receiveRealData]")
+
+        """
         print("code: ", code)
         print("realType: ", realType)
         print("realData: ", realData)
+        """
+
+        if realType == "주식체결":
+            print("현재가: ", self.getCommRealData(code, 10))
+            print("거래량: ", self.getCommRealData(code, 15))
+            print("누적거래량: ", self.getCommRealData(code, 13))
+            print("체결강도: ", self.getCommRealData(code, 228))
+            print("체결시간: ", self.getCommRealData(code, 20))
+
+        elif realType == "주식호가잔량":
+            print("호가시간: ", self.getCommRealData(code, 21))
+            print("매도호가5: ", self.getCommRealData(code, 45), "수량: ", self.getCommRealData(code, 65), self.getCommRealData(code, 85))
+            print("매도호가4: ", self.getCommRealData(code, 44), "수량: ", self.getCommRealData(code, 64), self.getCommRealData(code, 84))
+            print("매도호가3: ", self.getCommRealData(code, 43), "수량: ", self.getCommRealData(code, 63), self.getCommRealData(code, 83))
+            print("매도호가2: ", self.getCommRealData(code, 42), "수량: ", self.getCommRealData(code, 62), self.getCommRealData(code, 82))
+            print("매도호가1: ", self.getCommRealData(code, 41), "수량: ", self.getCommRealData(code, 61), self.getCommRealData(code, 81))
+            print("==================================================")
+            print("매수호가1: ", self.getCommRealData(code, 51), "수량: ", self.getCommRealData(code, 71), self.getCommRealData(code, 91))
+            print("매수호가2: ", self.getCommRealData(code, 52), "수량: ", self.getCommRealData(code, 72), self.getCommRealData(code, 92))
+            print("매수호가3: ", self.getCommRealData(code, 53), "수량: ", self.getCommRealData(code, 73), self.getCommRealData(code, 93))
+            print("매수호가4: ", self.getCommRealData(code, 54), "수량: ", self.getCommRealData(code, 74), self.getCommRealData(code, 94))
+            print("매수호가5: ", self.getCommRealData(code, 55), "수량: ", self.getCommRealData(code, 75), self.getCommRealData(code, 95))
 
     def receiveChejanData(self, gubun, itemCnt, fidList):
         """
@@ -452,8 +477,8 @@ class Kiwoom(QAxWidget):
 
         이 메서드는 setInputValue() 메서드를 이용하여, 사전에 필요한 값을 지정하지 않는다.
         단지, 메서드의 매개변수에서 직접 종목코드를 지정하여 호출하며,
-        처리 결과는 receiveTrData() 이벤트에서 처리하며,
-        처리방식은 commRqData()를 호출했을 때와 같다.
+        데이터 수신은 receiveTrData() 이벤트에서 아래 명시한 항목들을 1회 수신하며,
+        이후 receiveRealData() 이벤트를 통해 실시간 데이터를 얻을 수 있다.
 
         복수종목조회 TR 코드는 OPTKWFID 이며, 요청 성공시 아래 항목들의 정보를 얻을 수 있다.
 
@@ -535,6 +560,36 @@ class Kiwoom(QAxWidget):
         value = self.dynamicCall("GetCommRealData(QString, int)", code, fid)
 
         return value
+
+    def setRealReg(self, screenNo, codes, fids, realRegType):
+        """
+        실시간 데이터 요청 메서드
+
+        종목코드와 fid 리스트를 이용해서 실시간 데이터를 요청하는 메서드입니다.
+        한번에 등록 가능한 종목과 fid 갯수는 100종목, 100개의 fid 입니다.
+        실시간등록타입을 0으로 설정하면, 첫 실시간 데이터 요청을 의미하며
+        실시간등록타입을 1로 설정하면, 추가등록을 의미합니다.
+
+        실시간 데이터는 실시간 타입 단위로 receiveRealData() 이벤트로 전달되기 때문에,
+        이 메서드에서 지정하지 않은 fid 일지라도, 실시간 타입에 포함되어 있다면, 데이터 수신이 가능하다.
+
+        :param screenNo: string
+        :param codes: string - 종목코드 리스트(종목코드;종목코드;...)
+        :param fids: string - fid 리스트(fid;fid;...)
+        :param realRegType: string - 실시간등록타입(0: 첫 등록, 1: 추가 등록)
+        """
+
+        if not self.getConnectState():
+            raise KiwoomConnectError()
+
+        if not (isinstance(screenNo, str)
+                and isinstance(codes, str)
+                and isinstance(fids, str)
+                and isinstance(realRegType, str)):
+            raise ParameterTypeError()
+
+        self.dynamicCall("SetRealReg(QString, QString, QString, QString)",
+                         screenNo, codes, fids, realRegType)
 
     ###############################################################
     # 메서드 정의: 주문과 잔고처리 관련 메서드                              #
@@ -889,7 +944,8 @@ if __name__ == "__main__":
         kiwoom = Kiwoom()
         kiwoom.commConnect()
 
-        kiwoom.commKwRqData("066570;005930", 0, 2, "관심종목정보요청", "1000")
+        # kiwoom.commKwRqData("066570;005930", 0, 2, "관심종목정보요청", "1000")
+        kiwoom.setRealReg("0150", "053800", "21;41;42;43;44;45", "0")
 
     except Exception as e:
         print(e)

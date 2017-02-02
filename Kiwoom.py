@@ -614,11 +614,29 @@ class Kiwoom(QAxWidget):
         self.conditionLoop.exec_()
 
     def getConditionNameList(self):
-        """ 조건식 획득 메서드 """
+        """
+        조건식 획득 메서드
+
+        조건식을 딕셔너리 형태로 반환합니다.
+
+        :return: dict - {인덱스:조건명, 인덱스:조건명, ...}
+        """
 
         data = self.dynamicCall("GetConditionNameList()")
 
-        return data
+        if data == "":
+            raise KiwoomProcessingError("getConditionNameList(): 사용자 조건식이 없습니다.")
+
+        conditionList = data.split(';')
+        del conditionList[-1]
+
+        conditionDictionary = {}
+
+        for condition in conditionList:
+            key, value = condition.split('^')
+            conditionDictionary[key] = value
+
+        return conditionDictionary
 
     def receiveConditionVer(self, receive, msg):
 
@@ -626,8 +644,11 @@ class Kiwoom(QAxWidget):
             if not receive:
                 return
 
-            print("msg: ", msg)
-            print(self.getConditionNameList())
+            condition = self.getConditionNameList()
+            print("조건식 개수: ", len(condition))
+
+            for key in condition.keys():
+                print("조건식: ", key, ": ", condition[key])
 
         except Exception as e:
             print(e)

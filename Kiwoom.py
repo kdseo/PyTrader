@@ -28,6 +28,7 @@ class Kiwoom(QAxWidget):
         self.loginLoop = None
         self.requestLoop = None
         self.orderLoop = None
+        self.conditionLoop = None
 
         # 에러
         self.error = None
@@ -596,15 +597,34 @@ class Kiwoom(QAxWidget):
     ###############################################################
 
     def getConditionLoad(self):
-        """ 사용자 조건식을 불러와서 로컬에 임시 파일로 저장합니다. """
+        """ 조건식 목록 요청 메서드 """
 
         if not self.getConnectState():
             raise KiwoomConnectError()
 
         isLoad = self.dynamicCall("GetConditionLoad()")
 
+        # 요청 실패시
         if not isLoad:
-            raise KiwoomProcessingError("getConditionLoad(): 처리 실패")
+            raise KiwoomProcessingError("getConditionLoad(): 조건식 요청 실패")
+
+        # receiveConditonVer() 이벤트 메서드에서 루프 종료
+        self.conditionLoop = QEventLoop()
+        self.conditionLoop.exec_()
+
+    def getConditionNameList(self):
+        """ 조건식 획득 메서드 """
+
+        data = self.dynamicCall("GetConditionNameList()")
+
+        return data
+
+    def receiveConditionVer(self, receive, msg):
+
+        if not receive:
+            return
+
+        print(self.getConditionNameList())
 
     ###############################################################
     # 메서드 정의: 주문과 잔고처리 관련 메서드                              #
@@ -960,7 +980,9 @@ if __name__ == "__main__":
         kiwoom.commConnect()
 
         # kiwoom.commKwRqData("066570;005930", 0, 2, "관심종목정보요청", "1000")
-        kiwoom.setRealReg("0150", "053800", "21;41;42;43;44;45", "0")
+        # kiwoom.setRealReg("0150", "053800", "21;41;42;43;44;45", "0")
+
+        kiwoom.getConditionLoad()
 
     except Exception as e:
         print(e)

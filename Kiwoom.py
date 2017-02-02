@@ -621,10 +621,18 @@ class Kiwoom(QAxWidget):
 
     def receiveConditionVer(self, receive, msg):
 
-        if not receive:
-            return
+        try:
+            if not receive:
+                return
 
-        print(self.getConditionNameList())
+            print("msg: ", msg)
+            print(self.getConditionNameList())
+
+        except Exception as e:
+            print(e)
+
+        finally:
+            self.conditionLoop.exit()
 
     ###############################################################
     # 메서드 정의: 주문과 잔고처리 관련 메서드                              #

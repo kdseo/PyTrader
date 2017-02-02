@@ -54,6 +54,7 @@ class Kiwoom(QAxWidget):
         self.OnReceiveChejanData.connect(self.receiveChejanData)
         self.OnReceiveRealData.connect(self.receiveRealData)
         self.OnReceiveMsg.connect(self.receiveMsg)
+        self.OnReceiveConditionVer.connect(self.receiveConditionVer)
 
     ###############################################################
     # 이벤트 정의                                                    #
@@ -608,7 +609,7 @@ class Kiwoom(QAxWidget):
         if not isLoad:
             raise KiwoomProcessingError("getConditionLoad(): 조건식 요청 실패")
 
-        # receiveConditonVer() 이벤트 메서드에서 루프 종료
+        # receiveConditionVer() 이벤트 메서드에서 루프 종료
         self.conditionLoop = QEventLoop()
         self.conditionLoop.exec_()
 

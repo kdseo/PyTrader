@@ -30,6 +30,9 @@ class Kiwoom(QAxWidget):
         self.orderLoop = None
         self.conditionLoop = None
 
+        # 조건식
+        self.condition = None
+
         # 에러
         self.error = None
 
@@ -630,11 +633,11 @@ class Kiwoom(QAxWidget):
             if not receive:
                 return
 
-            condition = self.getConditionNameList()
-            print("조건식 개수: ", len(condition))
+            self.condition = self.getConditionNameList()
+            print("조건식 개수: ", len(self.condition))
 
-            for key in condition.keys():
-                print("조건식: ", key, ": ", condition[key])
+            for key in self.condition.keys():
+                print("조건식: ", key, ": ", self.condition[key])
                 print("key type: ", type(key))
 
         except Exception as e:
@@ -654,6 +657,8 @@ class Kiwoom(QAxWidget):
         :param inquiry: int - 조회구분(0: 남은데이터 없음, 2: 남은데이터 있음)
         """
 
+        print("[receiveTrCondition]")
+
         if codes == "":
             return
 
@@ -661,6 +666,7 @@ class Kiwoom(QAxWidget):
 
         # TODO: 마지막에 세미콜론이 붙는지 확인필요!
         print(codeList)
+        print("종목개수: ", len(codeList))
 
         self.conditionLoop.exit()
 
@@ -673,6 +679,8 @@ class Kiwoom(QAxWidget):
         :param conditionName: string - 조건식 이름
         :param conditionIndex: string - 조건식 인덱스(여기서만 인덱스가 string 타입으로 전달됨)
         """
+
+        print("[receiveRealCondition]")
 
         print("종목코드: ", code)
         print("이벤트: ", "종목편입" if event == "I" else "종목이탈")
@@ -1127,6 +1135,12 @@ if __name__ == "__main__":
         # kiwoom.setRealReg("0150", "053800", "21;41;42;43;44;45", "0")
 
         kiwoom.getConditionLoad()
+
+        for index in kiwoom.condition.keys():
+            kiwoom.sendCondition("0156", kiwoom.condition[index], index, 1)
+
+            # 조건식 하나만 테스트
+            break
 
     except Exception as e:
         print(e)

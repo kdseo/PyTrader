@@ -55,6 +55,8 @@ class Kiwoom(QAxWidget):
         self.OnReceiveRealData.connect(self.receiveRealData)
         self.OnReceiveMsg.connect(self.receiveMsg)
         self.OnReceiveConditionVer.connect(self.receiveConditionVer)
+        self.OnReceiveTrCondition.connect(self.receiveTrCondition)
+        self.OnReceiveRealCondition.connect(self.receiveRealCondition)
 
     ###############################################################
     # 이벤트 정의                                                    #
@@ -593,9 +595,87 @@ class Kiwoom(QAxWidget):
         self.dynamicCall("SetRealReg(QString, QString, QString, QString)",
                          screenNo, codes, fids, realRegType)
 
+    def setRealRemove(self, screenNo, code):
+        """
+        실시간 데이터 중지 메서드
+
+        setRealReg() 메서드로 등록한 종목만, 이 메서드를 통해 실시간 데이터 받기를 중지 시킬 수 있습니다.
+
+        :param screenNo: string - 화면번호 또는 ALL 키워드 사용가능
+        :param code: string - 종목코드 또는 ALL 키워드 사용가능
+        """
+
+        if not self.getConnectState():
+            raise KiwoomConnectError()
+
+        if not (isinstance(screenNo, str)
+                and isinstance(code, str)):
+            raise ParameterTypeError()
+
+        self.dynamicCall("SetRealRemove(QString, QString)", screenNo, code)
+
     ###############################################################
-    # 메서드 정의: 조건검색 관련 메서드                                   #
+    # 메서드 정의: 조건검색 관련 메서드와 이벤트                            #
     ###############################################################
+
+    def receiveConditionVer(self, receive, msg):
+        """
+        getConditionLoad() 메서드의 조건식 목록 요청에 대한 응답 이벤트
+
+        :param receive: int - 응답결과(1: 성공, 나머지 실패)
+        :param msg: string - 메세지
+        """
+
+        try:
+            if not receive:
+                return
+
+            condition = self.getConditionNameList()
+            print("조건식 개수: ", len(condition))
+
+            for key in condition.keys():
+                print("조건식: ", key, ": ", condition[key])
+                print("key type: ", type(key))
+
+        except Exception as e:
+            print(e)
+
+        finally:
+            self.conditionLoop.exit()
+
+    def receiveTrCondition(self, screenNo, codes, conditionName, conditionIndex, inquiry):
+        """
+        1회성 종목 조건검색 요청시 발생되는 이벤트
+
+        :param screenNo: string
+        :param codes: string - 종목코드 목록(각 종목은 세미콜론으로 구분됨)
+        :param conditionName: string - 조건식 이름
+        :param conditionIndex: int - 조건식 인덱스
+        :param inquiry: int - 조회구분(0: 남은데이터 없음, 2: 남은데이터 있음)
+        """
+
+        if codes == "":
+            return
+
+        codeList = codes.split(';')
+
+        # TODO: 마지막에 세미콜론이 붙는지 확인필요!
+        print(codeList)
+
+        self.conditionLoop.exit()
+
+    def receiveRealCondition(self, code, event, conditionName, conditionIndex):
+        """
+        실시간 종목 조건검색 요청시 발생되는 이벤트
+
+        :param code: string - 종목코드
+        :param event: string - 이벤트종류("I": 종목편입, "D": 종목이탈)
+        :param conditionName: string - 조건식 이름
+        :param conditionIndex: string - 조건식 인덱스(여기서만 인덱스가 string 타입으로 전달됨)
+        """
+
+        print("종목코드: ", code)
+        print("이벤트: ", "종목편입" if event == "I" else "종목이탈")
 
     def getConditionLoad(self):
         """ 조건식 목록 요청 메서드 """
@@ -639,31 +719,13 @@ class Kiwoom(QAxWidget):
 
         return conditionDictionary
 
-    def receiveConditionVer(self, receive, msg):
-
-        try:
-            if not receive:
-                return
-
-            condition = self.getConditionNameList()
-            print("조건식 개수: ", len(condition))
-
-            for key in condition.keys():
-                print("조건식: ", key, ": ", condition[key])
-                print("key type: ", type(key))
-
-        except Exception as e:
-            print(e)
-
-        finally:
-            self.conditionLoop.exit()
-
     def sendCondition(self, screenNo, conditionName, conditionIndex, isRealTime):
         """
         종목 조건검색 요청 메서드
 
         이 메서드로 얻고자 하는 것은 해당 조건에 맞는 종목코드이다.
         해당 종목에 대한 상세정보는 setRealReg() 메서드로 요청할 수 있다.
+        요청이 실패하는 경우는, 해당 조건식이 없거나, 조건명과 인덱스가 맞지 않거나, 조회 횟수를 초과하는 경우 발생한다.
 
         조건검색에 대한 결과는
         1회성 조회의 경우, receiveTrCondition() 이벤트로 결과값이 전달되며
@@ -690,9 +752,23 @@ class Kiwoom(QAxWidget):
         if not isRequest:
             raise KiwoomProcessingError("sendCondition(): 조건검색 요청 실패")
 
+        # TODO: 실시간 조회시 receiveTrCondition()이 같이 호출되는지 확인필요!
         # receiveTrCondition() 이벤트 메서드에서 루프 종료
         self.conditionLoop = QEventLoop()
         self.conditionLoop.exec_()
+
+    def sendConditionStop(self, screenNo, conditionName, conditionIndex):
+        """ 종목 조건검색 중지 메서드 """
+
+        if not self.getConnectState():
+            raise KiwoomConnectError()
+
+        if not (isinstance(screenNo, str)
+                and isinstance(conditionName, str)
+                and isinstance(conditionIndex, int)):
+            raise ParameterTypeError()
+
+        self.dynamicCall("SendConditionStop(QString, QString, int)", screenNo, conditionName, conditionIndex)
 
     ###############################################################
     # 메서드 정의: 주문과 잔고처리 관련 메서드                              #

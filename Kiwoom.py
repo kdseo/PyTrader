@@ -592,6 +592,21 @@ class Kiwoom(QAxWidget):
                          screenNo, codes, fids, realRegType)
 
     ###############################################################
+    # 메서드 정의: 조건검색 관련 메서드                                   #
+    ###############################################################
+
+    def getConditionLoad(self):
+        """ 사용자 조건식을 불러와서 로컬에 임시 파일로 저장합니다. """
+
+        if not self.getConnectState():
+            raise KiwoomConnectError()
+
+        isLoad = self.dynamicCall("GetConditionLoad()")
+
+        if not isLoad:
+            raise KiwoomProcessingError("getConditionLoad(): 처리 실패")
+
+    ###############################################################
     # 메서드 정의: 주문과 잔고처리 관련 메서드                              #
     # 1초에 5회까지 주문 허용                                          #
     ###############################################################

@@ -658,7 +658,7 @@ class Kiwoom(QAxWidget):
         finally:
             self.conditionLoop.exit()
 
-    def sendCondition(self, screenNo, conditionName, conditionInex, isRealTime):
+    def sendCondition(self, screenNo, conditionName, conditionIndex, isRealTime):
         """
         종목 조건검색 요청 메서드
 
@@ -666,12 +666,12 @@ class Kiwoom(QAxWidget):
         해당 종목에 대한 상세정보는 setRealReg() 메서드로 요청할 수 있다.
 
         조건검색에 대한 결과는
-        1회성 조회의 경우, receiveTrConditon() 이벤트로 결과값이 전달되며
-        실시간 조회의 경우, receiveRealContion() 이벤트로 결과값이 전달된다.
+        1회성 조회의 경우, receiveTrCondition() 이벤트로 결과값이 전달되며
+        실시간 조회의 경우, receiveRealCondition() 이벤트로 결과값이 전달된다.
 
         :param screenNo: string
         :param conditionName: string - 조건식 이름
-        :param conditionInex: int - 조건식 인덱스
+        :param conditionIndex: int - 조건식 인덱스
         :param isRealTime: int - 조건검색 조회구분(0: 1회성 조회, 1: 실시간 조회)
         """
 
@@ -680,17 +680,17 @@ class Kiwoom(QAxWidget):
 
         if not (isinstance(screenNo, str)
                 and isinstance(conditionName, str)
-                and isinstance(conditionInex, int)
+                and isinstance(conditionIndex, int)
                 and isinstance(isRealTime, int)):
             raise ParameterTypeError()
 
         isRequest = self.dynamicCall("SendCondition(QString, QString, int, int",
-                                     screenNo, conditionName, conditionInex, isRealTime)
+                                     screenNo, conditionName, conditionIndex, isRealTime)
 
         if not isRequest:
-            raise KiwoomProcessingError("sendConditon(): 조건검색 요청 실패")
+            raise KiwoomProcessingError("sendCondition(): 조건검색 요청 실패")
 
-        # receiveTrConditon() 이벤트 메서드에서 루프 종료
+        # receiveTrCondition() 이벤트 메서드에서 루프 종료
         self.conditionLoop = QEventLoop()
         self.conditionLoop.exec_()
 

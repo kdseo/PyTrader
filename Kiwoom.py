@@ -618,6 +618,7 @@ class Kiwoom(QAxWidget):
         조건식 획득 메서드
 
         조건식을 딕셔너리 형태로 반환합니다.
+        이 메서드는 반드시 receiveConditionVer() 이벤트 메서드안에서 사용해야 합니다.
 
         :return: dict - {인덱스:조건명, 인덱스:조건명, ...}
         """
@@ -634,7 +635,7 @@ class Kiwoom(QAxWidget):
 
         for condition in conditionList:
             key, value = condition.split('^')
-            conditionDictionary[key] = value
+            conditionDictionary[int(key)] = value
 
         return conditionDictionary
 
@@ -649,12 +650,49 @@ class Kiwoom(QAxWidget):
 
             for key in condition.keys():
                 print("조건식: ", key, ": ", condition[key])
+                print("key type: ", type(key))
 
         except Exception as e:
             print(e)
 
         finally:
             self.conditionLoop.exit()
+
+    def sendCondition(self, screenNo, conditionName, conditionInex, isRealTime):
+        """
+        종목 조건검색 요청 메서드
+
+        이 메서드로 얻고자 하는 것은 해당 조건에 맞는 종목코드이다.
+        해당 종목에 대한 상세정보는 setRealReg() 메서드로 요청할 수 있다.
+
+        조건검색에 대한 결과는
+        1회성 조회의 경우, receiveTrConditon() 이벤트로 결과값이 전달되며
+        실시간 조회의 경우, receiveRealContion() 이벤트로 결과값이 전달된다.
+
+        :param screenNo: string
+        :param conditionName: string - 조건식 이름
+        :param conditionInex: int - 조건식 인덱스
+        :param isRealTime: int - 조건검색 조회구분(0: 1회성 조회, 1: 실시간 조회)
+        """
+
+        if not self.getConnectState():
+            raise KiwoomConnectError()
+
+        if not (isinstance(screenNo, str)
+                and isinstance(conditionName, str)
+                and isinstance(conditionInex, int)
+                and isinstance(isRealTime, int)):
+            raise ParameterTypeError()
+
+        isRequest = self.dynamicCall("SendCondition(QString, QString, int, int",
+                                     screenNo, conditionName, conditionInex, isRealTime)
+
+        if not isRequest:
+            raise KiwoomProcessingError("sendConditon(): 조건검색 요청 실패")
+
+        # receiveTrConditon() 이벤트 메서드에서 루프 종료
+        self.conditionLoop = QEventLoop()
+        self.conditionLoop.exec_()
 
     ###############################################################
     # 메서드 정의: 주문과 잔고처리 관련 메서드                              #

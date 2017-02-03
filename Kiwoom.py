@@ -246,7 +246,11 @@ class Kiwoom(QAxWidget):
         print("realData: ", realData)
         """
 
-        if realType == "주식체결":
+        if realType == "장시작시간":
+            print("장운영구분: ", self.getCommRealData(realType, 215))
+            print("장시작예상잔여시간: ", self.getCommRealData(realType, 214))
+
+        elif realType == "주식체결":
             print("현재가: ", self.getCommRealData(code, 10))
             print("거래량: ", self.getCommRealData(code, 15))
             print("누적거래량: ", self.getCommRealData(code, 13))
@@ -663,8 +667,8 @@ class Kiwoom(QAxWidget):
             return
 
         codeList = codes.split(';')
+        del codeList[-1]
 
-        # TODO: 마지막에 세미콜론이 붙는지 확인필요!
         print(codeList)
         print("종목개수: ", len(codeList))
 
@@ -737,7 +741,7 @@ class Kiwoom(QAxWidget):
 
         조건검색에 대한 결과는
         1회성 조회의 경우, receiveTrCondition() 이벤트로 결과값이 전달되며
-        실시간 조회의 경우, receiveRealCondition() 이벤트로 결과값이 전달된다.
+        실시간 조회의 경우, receiveTrCondition()과 receiveRealCondition() 이벤트로 결과값이 전달된다.
 
         :param screenNo: string
         :param conditionName: string - 조건식 이름
@@ -760,7 +764,6 @@ class Kiwoom(QAxWidget):
         if not isRequest:
             raise KiwoomProcessingError("sendCondition(): 조건검색 요청 실패")
 
-        # TODO: 실시간 조회시 receiveTrCondition()이 같이 호출되는지 확인필요!
         # receiveTrCondition() 이벤트 메서드에서 루프 종료
         self.conditionLoop = QEventLoop()
         self.conditionLoop.exec_()

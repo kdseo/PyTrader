@@ -1127,15 +1127,13 @@ class FidList(object):
 
 
 if __name__ == "__main__":
+    """ 조건검색 테스트 코드 """
 
     app = QApplication(sys.argv)
 
     try:
         kiwoom = Kiwoom()
         kiwoom.commConnect()
-
-        # kiwoom.commKwRqData("066570;005930", 0, 2, "관심종목정보요청", "1000")
-        # kiwoom.setRealReg("0150", "053800", "21;41;42;43;44;45", "0")
 
         kiwoom.getConditionLoad()
 
@@ -1149,57 +1147,3 @@ if __name__ == "__main__":
         print(e)
 
     sys.exit(app.exec_())
-
-    """ getCommDataEx
-    app = QApplication(sys.argv)
-
-    try:
-        kiwoom = Kiwoom()
-        kiwoom.commConnect()
-
-        kiwoom.setInputValue("종목코드", "066570")
-        kiwoom.setInputValue("기준일자", "20160101")
-        kiwoom.setInputValue("수정주가구분", "1")
-        kiwoom.commRqData("주식일봉차트조회요청", "opt10081", 0, "0101")
-        # 연속조회 생략 - 아래 주석 코드 참조
-
-    except Exception as e:
-        print(e)
-
-    sys.exit(app.exec_())
-    """
-
-    """ getCommData
-    app = QApplication(sys.argv)
-
-    try:
-        kiwoom = Kiwoom()
-        kiwoom.commConnect()
-
-        kiwoom.setInputValue("계좌번호", "")    # 테스트시 자신의 모의계좌번호를 입력
-        kiwoom.setInputValue("비밀번호", "0000")
-        kiwoom.commRqData("예수금상세현황요청", "opw00001", 0, "2000")
-
-        kiwoom.setInputValue("계좌번호", "")    # 테스트시 자신의 모의계좌번호를 입력
-        kiwoom.setInputValue("비밀번호", "0000")
-        kiwoom.commRqData("계좌평가잔고내역요청", "opw00018", 0, "2000")
-
-        while kiwoom.inquiry == '2':
-            time.sleep(0.2)
-
-            kiwoom.setInputValue("계좌번호", "")    # 테스트시 자신의 모의계좌번호를 입력
-            kiwoom.setInputValue("비밀번호", "0000")
-
-            kiwoom.commRqData("계좌평가잔고내역요청", "opw00018", 2, "2")
-
-    except (ParameterTypeError, ParameterValueError, KiwoomProcessingError) as e:
-        print(e)
-
-    print("[opw00001]=============================")
-    print(kiwoom.opw00001Data)
-    print("[opw00018]=============================")
-    print(kiwoom.opw00018Data['accountEvaluation'])
-    print(kiwoom.opw00018Data['stocks'])
-
-    sys.exit(app.exec_())
-    """

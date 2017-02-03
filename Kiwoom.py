@@ -663,16 +663,18 @@ class Kiwoom(QAxWidget):
 
         print("[receiveTrCondition]")
 
-        if codes == "":
-            return
+        try:
+            if codes == "":
+                return
 
-        codeList = codes.split(';')
-        del codeList[-1]
+            codeList = codes.split(';')
+            del codeList[-1]
 
-        print(codeList)
-        print("종목개수: ", len(codeList))
+            print(codeList)
+            print("종목개수: ", len(codeList))
 
-        self.conditionLoop.exit()
+        finally:
+            self.conditionLoop.exit()
 
     def receiveRealCondition(self, code, event, conditionName, conditionIndex):
         """

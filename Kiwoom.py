@@ -652,7 +652,7 @@ class Kiwoom(QAxWidget):
 
     def receiveTrCondition(self, screenNo, codes, conditionName, conditionIndex, inquiry):
         """
-        1회성 종목 조건검색 요청시 발생되는 이벤트
+        (1회성, 실시간) 종목 조건검색 요청시 발생되는 이벤트
 
         :param screenNo: string
         :param codes: string - 종목코드 목록(각 종목은 세미콜론으로 구분됨)
@@ -663,16 +663,18 @@ class Kiwoom(QAxWidget):
 
         print("[receiveTrCondition]")
 
-        if codes == "":
-            return
+        try:
+            if codes == "":
+                return
 
-        codeList = codes.split(';')
-        del codeList[-1]
+            codeList = codes.split(';')
+            del codeList[-1]
 
-        print(codeList)
-        print("종목개수: ", len(codeList))
+            print(codeList)
+            print("종목개수: ", len(codeList))
 
-        self.conditionLoop.exit()
+        finally:
+            self.conditionLoop.exit()
 
     def receiveRealCondition(self, code, event, conditionName, conditionIndex):
         """

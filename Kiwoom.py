@@ -914,37 +914,19 @@ class Kiwoom(QAxWidget):
 
     def changeFormat(self, data, percent=0):
 
-        isMinus = False
+        if percent == 0:
+            d = int(data)
+            formatData = '{:-,d}'.format(d)
 
-        if data.startswith('-'):
-            isMinus = True
+        elif percent == 1:
+            f = int(data) / 100
+            formatData = '{:-,.2f}'.format(f)
 
-        stripStr = data.lstrip('-0')
-
-        if stripStr == '':
-            if percent == 1:
-                return '0.00'
-            else:
-                return '0'
-
-        if percent == 1:
-            stripInt = int(stripStr)
-            stripInt = stripInt / 100
-            formatStr = format(stripInt, ',.2f')
         elif percent == 2:
-            stripFloat = float(stripStr)
-            formatStr = format(stripFloat, ',.2f')
-        else:
-            stripInt = int(stripStr)
-            formatStr = format(stripInt, ",d")
+            f = float(data)
+            formatData = '{:-,.2f}'.format(f)
 
-        if formatStr.startswith('.'):
-            formatStr = '0' + formatStr
-
-        if isMinus:
-            formatStr = '-' + formatStr
-
-        return formatStr
+        return formatData
 
     def opwDataReset(self):
         """ 잔고 및 보유종목 데이터 초기화 """

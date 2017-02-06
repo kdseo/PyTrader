@@ -4,16 +4,17 @@ OCX 사용을 위해 QAxWidget 클래스를 상속받아서 구현하였으며,
 주식(현물) 거래에 필요한 메서드들만 구현하였습니다.
 
 author: 서경동
-last edit: 2017. 01. 14
+last edit: 2017. 02. 05
 """
 
 
 import sys
-import time
+import logging
+import logging.config
 from PyQt5.QAxContainer import QAxWidget
 from PyQt5.QtCore import QEventLoop
 from PyQt5.QtWidgets import QApplication
-from pandas import Series, DataFrame
+from pandas import DataFrame
 
 
 class Kiwoom(QAxWidget):
@@ -61,6 +62,21 @@ class Kiwoom(QAxWidget):
         self.OnReceiveTrCondition.connect(self.receiveTrCondition)
         self.OnReceiveRealCondition.connect(self.receiveRealCondition)
 
+        # 로깅용 설정파일
+        logging.config.fileConfig('logging.conf')
+        self.log = logging.getLogger('Kiwoom')
+
+    ###############################################################
+    # 로깅용 메서드 정의                                               #
+    ###############################################################
+
+    def logger(origin):
+        def wrapper(*args, **kwargs):
+            args[0].log.debug('{} args - {}, kwargs - {}'.format(origin.__name__, args, kwargs))
+            return origin(*args, **kwargs)
+
+        return wrapper
+
     ###############################################################
     # 이벤트 정의                                                    #
     ###############################################################
@@ -87,11 +103,8 @@ class Kiwoom(QAxWidget):
             else:
                 self.msg += "연결 끊김: 원인 - " + ReturnCode.CAUSE[returnCode] + "\r\n\r\n"
 
-        except (ParameterTypeError, ParameterValueError) as error:
-            print("eventConnect(): ", error.msg)
-
         except Exception as error:
-            print("eventConnect(): ", error)
+            self.log.error('eventConnect {}'.format(error))
 
         finally:
             # commConnect() 메서드에 의해 생성된 루프를 종료시킨다.

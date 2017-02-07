@@ -252,12 +252,23 @@ class Kiwoom(QAxWidget):
         """
 
         print("[receiveRealData]")
+        print("({}}".format(realType))
+
+        if realType not in RealType.REALTYPE:
+            return
+
+        data = []
+
+        for fid in RealType.REALTYPE[realType]:
+            value = self.getCommRealData(code if code != "" else realType, fid)
+            data.append(value)
+
+        print(data)
 
         """
         print("code: ", code)
         print("realType: ", realType)
         print("realData: ", realData)
-        """
 
         if realType == "장시작시간":
             print("장운영구분: ", self.getCommRealData(realType, 215))
@@ -283,6 +294,7 @@ class Kiwoom(QAxWidget):
             print("매수호가3: ", self.getCommRealData(code, 53), "수량: ", self.getCommRealData(code, 73), self.getCommRealData(code, 93))
             print("매수호가4: ", self.getCommRealData(code, 54), "수량: ", self.getCommRealData(code, 74), self.getCommRealData(code, 94))
             print("매수호가5: ", self.getCommRealData(code, 55), "수량: ", self.getCommRealData(code, 75), self.getCommRealData(code, 95))
+        """
 
     def receiveChejanData(self, gubun, itemCnt, fidList):
         """

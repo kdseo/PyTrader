@@ -1123,7 +1123,7 @@ class FidList(object):
     }
 
 
-class RealFid(object):
+class RealType(object):
 
     # 주식시세
     STOCK_QUOTATIONS = {

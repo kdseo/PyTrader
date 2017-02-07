@@ -251,50 +251,30 @@ class Kiwoom(QAxWidget):
         :param realData: string - 실시간 데이터 전문
         """
 
-        print("[receiveRealData]")
-        print("({}}".format(realType))
+        try:
+            print("[receiveRealData]")
+            print("({})".format(realType))
 
-        if realType not in RealType.REALTYPE:
-            return
+            if realType not in RealType.REALTYPE:
+                return
 
-        data = []
+            data = []
 
-        for fid in RealType.REALTYPE[realType]:
-            value = self.getCommRealData(code if code != "" else realType, fid)
-            data.append(value)
+            if code != "":
+                data.append(code)
+                codeOrNot = code
+            else:
+                codeOrNot = realType
 
-        print(data)
+            for fid in RealType.REALTYPE[realType]:
+                value = self.getCommRealData(codeOrNot, fid)
+                data.append(value)
 
-        """
-        print("code: ", code)
-        print("realType: ", realType)
-        print("realData: ", realData)
+            # TODO: DB에 저장
+            print(data)
 
-        if realType == "장시작시간":
-            print("장운영구분: ", self.getCommRealData(realType, 215))
-            print("장시작예상잔여시간: ", self.getCommRealData(realType, 214))
-
-        elif realType == "주식체결":
-            print("현재가: ", self.getCommRealData(code, 10))
-            print("거래량: ", self.getCommRealData(code, 15))
-            print("누적거래량: ", self.getCommRealData(code, 13))
-            print("체결강도: ", self.getCommRealData(code, 228))
-            print("체결시간: ", self.getCommRealData(code, 20))
-
-        elif realType == "주식호가잔량":
-            print("호가시간: ", self.getCommRealData(code, 21))
-            print("매도호가5: ", self.getCommRealData(code, 45), "수량: ", self.getCommRealData(code, 65), self.getCommRealData(code, 85))
-            print("매도호가4: ", self.getCommRealData(code, 44), "수량: ", self.getCommRealData(code, 64), self.getCommRealData(code, 84))
-            print("매도호가3: ", self.getCommRealData(code, 43), "수량: ", self.getCommRealData(code, 63), self.getCommRealData(code, 83))
-            print("매도호가2: ", self.getCommRealData(code, 42), "수량: ", self.getCommRealData(code, 62), self.getCommRealData(code, 82))
-            print("매도호가1: ", self.getCommRealData(code, 41), "수량: ", self.getCommRealData(code, 61), self.getCommRealData(code, 81))
-            print("==================================================")
-            print("매수호가1: ", self.getCommRealData(code, 51), "수량: ", self.getCommRealData(code, 71), self.getCommRealData(code, 91))
-            print("매수호가2: ", self.getCommRealData(code, 52), "수량: ", self.getCommRealData(code, 72), self.getCommRealData(code, 92))
-            print("매수호가3: ", self.getCommRealData(code, 53), "수량: ", self.getCommRealData(code, 73), self.getCommRealData(code, 93))
-            print("매수호가4: ", self.getCommRealData(code, 54), "수량: ", self.getCommRealData(code, 74), self.getCommRealData(code, 94))
-            print("매수호가5: ", self.getCommRealData(code, 55), "수량: ", self.getCommRealData(code, 75), self.getCommRealData(code, 95))
-        """
+        except Exception as e:
+            self.log.error('{}'.format(e))
 
     def receiveChejanData(self, gubun, itemCnt, fidList):
         """
@@ -1137,6 +1117,7 @@ class FidList(object):
 
 class RealType(object):
 
+    # TODO: fid 값들이 항상 순서대로 나와야하므로 list 타입으로 변경
     REALTYPE = {
         '주식시세': {
             10: '현재가',
@@ -1373,6 +1354,7 @@ if __name__ == "__main__":
         kiwoom = Kiwoom()
         kiwoom.commConnect()
 
+        """
         kiwoom.getConditionLoad()
 
         for index in kiwoom.condition.keys():
@@ -1380,6 +1362,9 @@ if __name__ == "__main__":
 
             # 조건식 하나만 테스트
             break
+        """
+
+        kiwoom.setRealReg("0150", "004060", "21;41", "0")
 
     except Exception as e:
         print(e)

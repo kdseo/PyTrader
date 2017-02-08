@@ -252,8 +252,8 @@ class Kiwoom(QAxWidget):
         """
 
         try:
-            print("[receiveRealData]")
-            print("({})".format(realType))
+            self.log.debug("[receiveRealData]")
+            self.log.debug("({})".format(realType))
 
             if realType not in RealType.REALTYPE:
                 return
@@ -271,7 +271,7 @@ class Kiwoom(QAxWidget):
                 data.append(value)
 
             # TODO: DB에 저장
-            print(data)
+            self.log.debug(data)
 
         except Exception as e:
             self.log.error('{}'.format(e))

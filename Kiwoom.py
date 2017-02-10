@@ -266,7 +266,7 @@ class Kiwoom(QAxWidget):
             else:
                 codeOrNot = realType
 
-            for fid in RealType.REALTYPE[realType]:
+            for fid in sorted(RealType.REALTYPE[realType].keys()):
                 value = self.getCommRealData(codeOrNot, fid)
                 data.append(value)
 
@@ -1117,7 +1117,6 @@ class FidList(object):
 
 class RealType(object):
 
-    # TODO: fid 값들이 항상 순서대로 나와야하므로 list 타입으로 변경
     REALTYPE = {
         '주식시세': {
             10: '현재가',

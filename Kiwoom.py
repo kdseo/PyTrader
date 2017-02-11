@@ -31,6 +31,9 @@ class Kiwoom(QAxWidget):
         self.orderLoop = None
         self.conditionLoop = None
 
+        # 서버구분
+        self.serverGubun = None
+
         # 조건식
         self.condition = None
 
@@ -125,6 +128,21 @@ class Kiwoom(QAxWidget):
         :param trCode: string
         :param msg: string - 서버로 부터의 메시지
         """
+
+        if requestName == "서버구분":
+
+            if msg.find('모의투자') < 0:
+                self.serverGubun = 1
+
+            else:
+                self.serverGubun = 0
+
+            try:
+                self.orderLoop.exit()
+            except AttributeError:
+                pass
+            finally:
+                return
 
         self.msg += requestName + ": " + msg + "\r\n\r\n"
 
@@ -353,6 +371,15 @@ class Kiwoom(QAxWidget):
 
         cmd = 'GetLoginInfo("%s")' % tag
         info = self.dynamicCall(cmd)
+
+        if tag == 'GetServerGubun' and info == "":
+
+            if self.serverGubun == None:
+                accountList = self.getLoginInfo("ACCNO").split(';')
+                self.sendOrder("서버구분", "0102", accountList[0], 1, "066570", 0, 0, "05", "")
+
+            info = self.serverGubun
+
         return info
 
     #################################################################

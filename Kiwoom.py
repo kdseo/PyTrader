@@ -726,7 +726,8 @@ class Kiwoom(QAxWidget):
         print("종목코드: ", code)
         print("이벤트: ", "종목편입" if event == "I" else "종목이탈")
 
-        self.realConditionCodeList.append(code)
+        if event == "I":
+            self.realConditionCodeList.append(code)
 
     def getConditionLoad(self):
         """ 조건식 목록 요청 메서드 """

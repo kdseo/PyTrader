@@ -316,6 +316,15 @@ class MyWindow(QMainWindow, ui):
             # 조건식 하나만 테스트
             break
 
+    def buyStrategy(self):
+        """ 매수전략을 이용하여 매수할 종목 선정 """
+
+        stockList = self.kiwoom.realConditionCodeList
+
+        # TODO: 매수전략 작성
+
+        return stockList
+
 
 
 if __name__ == "__main__":

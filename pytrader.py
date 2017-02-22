@@ -55,7 +55,7 @@ class MyWindow(QMainWindow, ui):
         self.todayBuyList = []
 
         # 자동 선정 종목 리스트 테이블 설정
-        self.setAutomatedStocks()
+        # self.setAutomatedStocks()
 
     def timeout(self):
         """ 타임아웃 이벤트가 발생하면 호출되는 메서드 """
@@ -274,6 +274,7 @@ class MyWindow(QMainWindow, ui):
                     # 주문 접수시
                     if self.kiwoom.orderNo:
                         buyResult += automatedStocks[i].replace("매수전", "매수주문완료")
+                        self.todayBuyList.append(code)
                         self.kiwoom.orderNo = ""
                     # 주문 미접수시
                     else:

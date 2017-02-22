@@ -305,6 +305,18 @@ class MyWindow(QMainWindow, ui):
                 for data in result:
                     f.write(data)
 
+    def realtimeConditonStart(self):
+        """ 실시간 조건검색 시작 메서드 """
+
+        self.kiwoom.getConditionLoad()
+
+        for index in self.kiwoom.condition.keys():
+            self.kiwoom.sendCondition("0156", self.kiwoom.condition[index], index, 1)
+
+            # 조건식 하나만 테스트
+            break
+
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

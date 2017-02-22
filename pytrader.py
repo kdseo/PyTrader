@@ -327,7 +327,8 @@ class MyWindow(QMainWindow, ui):
 
         for code in stockList:
             if code not in self.todayBuyList:
-                codeList.append(code)
+                order = "매수;{};시장가;10;0;매수전".format(code)
+                codeList.append(order)
                 # TODO: 매수전략 작성
 
         return codeList
@@ -338,7 +339,6 @@ class MyWindow(QMainWindow, ui):
         # TODO: 매도전략 작성
 
         return []
-
 
 
 if __name__ == "__main__":

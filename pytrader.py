@@ -51,6 +51,9 @@ class MyWindow(QMainWindow, ui):
         # 자동 주문을 활성화 하려면 True로 설정
         self.isAutomaticOrder = False
 
+        # 당일 매수한 종목 리스트
+        self.todayBuyList = []
+
         # 자동 선정 종목 리스트 테이블 설정
         self.setAutomatedStocks()
 
@@ -319,11 +322,20 @@ class MyWindow(QMainWindow, ui):
     def buyStrategy(self):
         """ 매수전략을 이용하여 매수할 종목 선정 """
 
-        stockList = self.kiwoom.realConditionCodeList
+        stockList = self.kiwoom.realConditionCodeList[0:]
 
-        # TODO: 매수전략 작성
+        if len(stockList) == 0:
+            return []
 
-        return stockList
+        # 매수할 종목 리스트
+        codeList = []
+
+        for code in stockList:
+            if code not in self.todayBuyList:
+                codeList.append(code)
+                # TODO: 매수전략 작성
+
+        return codeList
 
 
 

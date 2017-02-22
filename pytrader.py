@@ -243,22 +243,17 @@ class MyWindow(QMainWindow, ui):
         fileList = ["buy_list.txt", "sell_list.txt"]
         hogaTypeTable = {'지정가': "00", '시장가': "03"}
         account = self.accountComboBox.currentText()
-        automatedStocks = []
 
-        # 파일읽기
-        try:
-            for file in fileList:
-                # utf-8로 작성된 파일을
-                # cp949 환경에서 읽기위해서 encoding 지정
-                with open(file, 'rt', encoding='utf-8') as f:
-                    stocksList = f.readlines()
-                    automatedStocks += stocksList
-        except Exception as e:
-            e.msg = "automaticOrder() 에러"
-            self.showDialog('Critical', e)
-            return
+        self.realtimeConditonStart()
+
+        automatedStocks = self.buyStrategy()
+        automatedStocks += self.sellStrategy()
 
         cnt = len(automatedStocks)
+
+        # 매매할 종목이 없으면 종료
+        if cnt:
+            return
 
         # 주문하기
         buyResult = []
@@ -336,6 +331,13 @@ class MyWindow(QMainWindow, ui):
                 # TODO: 매수전략 작성
 
         return codeList
+
+    def sellStrategy(self):
+        """ 매도전략을 이용하여 매도할 종목 선정 """
+
+        # TODO: 매도전략 작성
+
+        return []
 
 
 

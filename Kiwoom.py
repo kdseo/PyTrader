@@ -37,6 +37,9 @@ class Kiwoom(QAxWidget):
         # 조건식
         self.condition = None
 
+        # 조건검색에 의한 종목코드 리스트
+        self.realConditionCodeList = []
+
         # 에러
         self.error = None
 
@@ -722,6 +725,8 @@ class Kiwoom(QAxWidget):
 
         print("종목코드: ", code)
         print("이벤트: ", "종목편입" if event == "I" else "종목이탈")
+
+        self.realConditionCodeList.append(code)
 
     def getConditionLoad(self):
         """ 조건식 목록 요청 메서드 """

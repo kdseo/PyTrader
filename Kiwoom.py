@@ -708,6 +708,8 @@ class Kiwoom(QAxWidget):
             print(codeList)
             print("종목개수: ", len(codeList))
 
+            self.realConditionCodeList += codeList
+
         finally:
             self.conditionLoop.exit()
 

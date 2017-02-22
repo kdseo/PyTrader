@@ -54,6 +54,9 @@ class MyWindow(QMainWindow, ui):
         # 당일 매수한 종목 리스트
         self.todayBuyList = []
 
+        # 실시간 조건검색 시작
+        self.realtimeConditonStart()
+
         # 자동 선정 종목 리스트 테이블 설정
         # self.setAutomatedStocks()
 
@@ -84,7 +87,7 @@ class MyWindow(QMainWindow, ui):
             if self.isAutomaticOrder and int(automaticOrderTime) >= 900:
                 # self.isAutomaticOrder = False
                 self.automaticOrder()
-                self.setAutomatedStocks()
+                # self.setAutomatedStocks()
 
             # log
             if self.kiwoom.msg:
@@ -244,15 +247,16 @@ class MyWindow(QMainWindow, ui):
         hogaTypeTable = {'지정가': "00", '시장가': "03"}
         account = self.accountComboBox.currentText()
 
-        self.realtimeConditonStart()
-
         automatedStocks = self.buyStrategy()
         automatedStocks += self.sellStrategy()
 
         cnt = len(automatedStocks)
 
+        print("automatedStocks: ", automatedStocks)
+        print("cnt: ", cnt)
+
         # 매매할 종목이 없으면 종료
-        if cnt:
+        if cnt == 0:
             return
 
         # 주문하기
@@ -295,6 +299,8 @@ class MyWindow(QMainWindow, ui):
             except (ParameterTypeError, KiwoomProcessingError) as e:
                 self.showDialog('Critical', e)
 
+            time.sleep(0.2)
+
         # 잔고및 보유종목 디스플레이 갱신
         self.inquiryBalance()
 
@@ -306,33 +312,40 @@ class MyWindow(QMainWindow, ui):
 
     def realtimeConditonStart(self):
         """ 실시간 조건검색 시작 메서드 """
+        try:
+            self.kiwoom.getConditionLoad()
 
-        self.kiwoom.getConditionLoad()
+            for index in self.kiwoom.condition.keys():
+                self.kiwoom.sendCondition("0156", self.kiwoom.condition[index], index, 1)
 
-        for index in self.kiwoom.condition.keys():
-            self.kiwoom.sendCondition("0156", self.kiwoom.condition[index], index, 1)
+                # 조건식 하나만 테스트
+                break
 
-            # 조건식 하나만 테스트
-            break
+        except Exception as e:
+            print(e)
 
     def buyStrategy(self):
         """ 매수전략을 이용하여 매수할 종목 선정 """
 
-        stockList = self.kiwoom.realConditionCodeList[0:]
+        try:
+            stockList = self.kiwoom.realConditionCodeList[0:]
 
-        if len(stockList) == 0:
-            return []
+            if len(stockList) == 0:
+                return []
 
-        # 매수할 종목 리스트
-        codeList = []
+            # 매수할 종목 리스트
+            codeList = []
 
-        for code in stockList:
-            if code not in self.todayBuyList:
-                order = "매수;{};시장가;10;0;매수전".format(code)
-                codeList.append(order)
-                # TODO: 매수전략 작성
+            for code in stockList:
+                if code not in self.todayBuyList:
+                    order = "매수;{};시장가;10;0;매수전".format(code)
+                    codeList.append(order)
+                    # TODO: 매수전략 작성
 
-        return codeList
+            return codeList
+
+        except Exception as e:
+            print(e)
 
     def sellStrategy(self):
         """ 매도전략을 이용하여 매도할 종목 선정 """

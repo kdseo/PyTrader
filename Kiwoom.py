@@ -382,6 +382,17 @@ class Kiwoom(QAxWidget):
 
         return info
 
+    def getServerGubun(self):
+        """
+        서버구분 정보를 반환한다.
+        리턴값이 1이면 모의투자 서버이고, 그 외에는 실서버.
+
+        :return:
+        """
+
+        ret = self.dynamicCall("KOA_Functions(QString, QString)", "GetServerGubun", "")
+        return ret
+
     #################################################################
     # 메서드 정의: 조회 관련 메서드                                        #
     # 시세조회, 관심종목 조회, 조건검색 등 이들의 합산 조회 횟수가 1초에 5회까지 허용 #
@@ -1380,17 +1391,14 @@ if __name__ == "__main__":
         kiwoom = Kiwoom()
         kiwoom.commConnect()
 
-        """
-        kiwoom.getConditionLoad()
+        server = kiwoom.getServerGubun()
+        print("server: ", server)
+        print("type: ", type(server))
 
-        for index in kiwoom.condition.keys():
-            kiwoom.sendCondition("0156", kiwoom.condition[index], index, 1)
-
-            # 조건식 하나만 테스트
-            break
-        """
-
-        kiwoom.setRealReg("0150", "004060", "21;41", "0")
+        if int(server) == 1:
+            print("모의투자 서버입니다.")
+        else:
+            print("실서버 입니다.")
 
     except Exception as e:
         print(e)

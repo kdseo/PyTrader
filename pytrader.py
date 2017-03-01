@@ -25,7 +25,9 @@ class MyWindow(QMainWindow, ui):
         self.kiwoom = Kiwoom()
         self.kiwoom.commConnect()
 
-        if self.kiwoom.getLoginInfo("GetServerGubun"):
+        self.server = self.kiwoom.getLoginInfo("GetServerGubun")
+
+        if len(self.server) == 0 or self.server != "1":
             self.serverGubun = "실제운영"
         else:
             self.serverGubun = "모의투자"

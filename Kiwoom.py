@@ -32,7 +32,7 @@ class Kiwoom(QAxWidget):
         self.conditionLoop = None
 
         # 서버구분
-        self.serverGubun = None
+        self.server = None
 
         # 조건식
         self.condition = None
@@ -97,7 +97,9 @@ class Kiwoom(QAxWidget):
         try:
             if returnCode == ReturnCode.OP_ERR_NONE:
 
-                if self.getLoginInfo("GetServerGubun", True):
+                self.server = self.getLoginInfo("GetServerGubun", True)
+
+                if len(self.server) == 0 or self.server != "1":
                     self.msg += "실서버 연결 성공" + "\r\n\r\n"
 
                 else:
@@ -128,21 +130,6 @@ class Kiwoom(QAxWidget):
         :param trCode: string
         :param msg: string - 서버로 부터의 메시지
         """
-
-        if requestName == "서버구분":
-
-            if msg.find('모의투자') < 0:
-                self.serverGubun = 1
-
-            else:
-                self.serverGubun = 0
-
-            try:
-                self.orderLoop.exit()
-            except AttributeError:
-                pass
-            finally:
-                return
 
         self.msg += requestName + ": " + msg + "\r\n\r\n"
 
@@ -352,7 +339,7 @@ class Kiwoom(QAxWidget):
         ACCNO: 전체 계좌 목록을 반환한다. 계좌별 구분은 ;(세미콜론) 이다.
         USER_ID: 사용자 ID를 반환한다.
         USER_NAME: 사용자명을 반환한다.
-        GetServerGubun: 접속서버 구분을 반환합니다.(0: 모의투자, 그외: 실서버)
+        GetServerGubun: 접속서버 구분을 반환합니다.("1": 모의투자, 그외(빈 문자열포함): 실서버)
 
         :param tag: string
         :param isConnectState: bool - 접속상태을 확인할 필요가 없는 경우 True로 설정.
@@ -369,25 +356,20 @@ class Kiwoom(QAxWidget):
         if tag not in ['ACCOUNT_CNT', 'ACCNO', 'USER_ID', 'USER_NAME', 'GetServerGubun']:
             raise ParameterValueError()
 
-        cmd = 'GetLoginInfo("%s")' % tag
-        info = self.dynamicCall(cmd)
-
-        if tag == 'GetServerGubun' and info == "":
-
-            if self.serverGubun == None:
-                accountList = self.getLoginInfo("ACCNO").split(';')
-                self.sendOrder("서버구분", "0102", accountList[0], 1, "066570", 0, 0, "05", "")
-
-            info = self.serverGubun
+        if tag == "GetServerGubun":
+            info = self.getServerGubun()
+        else:
+            cmd = 'GetLoginInfo("%s")' % tag
+            info = self.dynamicCall(cmd)
 
         return info
 
     def getServerGubun(self):
         """
         서버구분 정보를 반환한다.
-        리턴값이 1이면 모의투자 서버이고, 그 외에는 실서버.
+        리턴값이 "1"이면 모의투자 서버이고, 그 외에는 실서버(빈 문자열포함).
 
-        :return:
+        :return: string
         """
 
         ret = self.dynamicCall("KOA_Functions(QString, QString)", "GetServerGubun", "")
@@ -1394,11 +1376,13 @@ if __name__ == "__main__":
         server = kiwoom.getServerGubun()
         print("server: ", server)
         print("type: ", type(server))
+        print("len: ", len(server))
 
-        if int(server) == 1:
-            print("모의투자 서버입니다.")
-        else:
+        if len(server) == 0 or server != "1":
             print("실서버 입니다.")
+
+        else:
+            print("모의투자 서버입니다.")
 
     except Exception as e:
         print(e)

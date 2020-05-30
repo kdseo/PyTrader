@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QTableWidget
 from PyQt5.QtCore import Qt, QTimer, QTime
 from PyQt5 import uic
 from Kiwoom import Kiwoom, ParameterTypeError, ParameterValueError, KiwoomProcessingError, KiwoomConnectError
-
+import tensorflow as tf
 
 ui = uic.loadUiType("pytrader.ui")[0]
 

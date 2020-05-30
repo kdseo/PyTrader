@@ -13,6 +13,8 @@ from PyQt5 import uic
 from Kiwoom import Kiwoom, ParameterTypeError, ParameterValueError, KiwoomProcessingError, KiwoomConnectError
 import tensorflow as tf
 
+## Git Test
+
 ui = uic.loadUiType("pytrader.ui")[0]
 
 class MyWindow(QMainWindow, ui):
